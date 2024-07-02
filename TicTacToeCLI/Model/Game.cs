@@ -1,6 +1,7 @@
+using TicTacToeCLI.Models;
 using TicTacToeCLI.View;
 
-namespace TicTacToeCLI.Models;
+namespace TicTacToeCLI.Model;
 
 public class Game
 {
@@ -26,11 +27,11 @@ public class Game
 
     public Player CurrentPlayer { get; private set; }
 
-    public Game(Player player1, Player player2)
+    public Game(Player player1, Player cpu)
     {
         GameGrid = new Grid(GridSideLength);
         Players[0] = player1;
-        Players[1] = player2;
+        Players[1] = cpu;
         CurrentPlayer = Players[0];
         NumberPlacement.SetGridSize(GameGridSideLength);
     }
@@ -114,8 +115,7 @@ public class Game
 
     public void ChooseRandomPlayer()
     {
-        //   CurrentPlayer = new Random().Next(2) == 0 ? Players[0] : Players[1];
-        CurrentPlayer = Players[1];
+        CurrentPlayer = new Random().Next(2) == 0 ? Players[0] : Players[1];
     }
 
     public void IncreaseTurnCounter()

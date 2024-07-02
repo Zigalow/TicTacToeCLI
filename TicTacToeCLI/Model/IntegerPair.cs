@@ -1,4 +1,4 @@
-namespace TicTacToeCLI.Models;
+namespace TicTacToeCLI.Model;
 
 public class IntegerPair
 {

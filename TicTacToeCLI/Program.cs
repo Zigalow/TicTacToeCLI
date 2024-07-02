@@ -10,8 +10,5 @@ abstract class Program
         gameController.Start();
         Console.WriteLine("Press a key to exit...");
         Console.ReadKey();
-        Console.Clear();
-        Console.Clear();
-        Console.Clear();
     }
 }

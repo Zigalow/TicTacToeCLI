@@ -1,3 +1,5 @@
+using TicTacToeCLI.Model;
+
 namespace TicTacToeCLI.Models;
 
 /// <summary>

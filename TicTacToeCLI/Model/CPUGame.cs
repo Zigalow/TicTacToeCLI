@@ -1,41 +1,40 @@
+using TicTacToeCLI.Model;
+
 namespace TicTacToeCLI.Models;
 
 public class CPUGame : Game
 {
-    private CPU CPU { get; }
+    private CPU Cpu { get; }
     // private CPU _cpu;
 
-    public CPUGame(Player player1, CPU player2) : base(player1, player2)
+    public CPUGame(Player player1, CPU cpu) : base(player1, cpu)
     {
-        player2.FillAvailableSpaces(GridSideLength);
-        CPU = player2;
+        cpu.FillAvailableSpaces(GridSideLength);
+        Cpu = cpu;
     }
 
     public bool CPUCanWin(out IntegerPair? winningPair)
     {
-        WinPossibility winPossibility = new(CPU.PlacedCurrently, GridSideLength);
-
+        WinPossibility winPossibility = new(Cpu.PlacedCurrently, GridSideLength);
         return CalculateWinPossibility(winPossibility, out winningPair);
     }
 
     public bool CPUCanLose(out IntegerPair? pairToPreventLoss)
     {
         WinPossibility winPossibility = new(Players[0].PlacedCurrently, GridSideLength);
-
         return CalculateWinPossibility(winPossibility, out pairToPreventLoss);
     }
-
 
     private bool CalculateWinPossibility(WinPossibility winPossibility, out IntegerPair? pair)
     {
         // Sideways
-        foreach (var sides in winPossibility.Sides)
+        foreach (var side in winPossibility.Sides)
         {
             for (int i = 0; i < GridSideLength; i++)
             {
-                if (GameGrid[i, sides] == null)
+                if (GameGrid[i, side] == null)
                 {
-                    pair = new IntegerPair(i, sides);
+                    pair = new IntegerPair(i, side);
                     return true;
                 }
             }
@@ -73,7 +72,7 @@ public class CPUGame : Game
                     {
                         continue;
                     }
-                    
+
                     pair = new IntegerPair(j, j);
                     return true;
                 }
@@ -86,6 +85,7 @@ public class CPUGame : Game
                     {
                         continue;
                     }
+
                     pair = new IntegerPair(GridSideLength - j - 1, j);
                     return true;
                 }

@@ -1,12 +1,11 @@
+using TicTacToeCLI.Model;
 using TicTacToeCLI.Models;
 using TicTacToeCLI.View;
 
+// Todo - XML-doc and code refactoring (code analysis)
+// Todo - Enhance UI experience in terms of text
+// Todo - Add readme
 // Todo - Auto fills the spots when it's a tie %%
-// Todo - Enhance UI experience in terms of text 
-// Todo - XML-doc
-// Todo - Analyze code, with analyze
-// Todo - Upload to GitHub
-
 namespace TicTacToeCLI.Controller;
 
 public class GameController
@@ -15,7 +14,6 @@ public class GameController
     private const int DelayInMicroseconds = 15000;
     private Game CurrentGame { get; set; }
     private GameMode _gameMode;
-    
 
     public void Start()
     {
@@ -103,9 +101,8 @@ public class GameController
         ConsoleKey playAgain;
         do
         {
-            playAgain = Console.ReadKey(true).Key;
+            playAgain = ReadInputKey();
         } while (playAgain != ConsoleKey.D1 && playAgain != ConsoleKey.D2 && playAgain != ConsoleKey.D3);
-
 
         switch (playAgain)
         {
@@ -122,42 +119,20 @@ public class GameController
         }
     }
 
-    private void RunGame(out bool exitGame, out bool playAgainWithSameConfigs)
+    private void RunGame(out bool exitGameChoice, out bool playAgainWithSameConfigsChoice)
     {
-        SlowPrint("The game will now commence...");
-        Thread.Sleep(1000);
-        CurrentGame.ChooseRandomPlayer();
-        Console.WriteLine();
-        Console.WriteLine(CurrentGame.GameGrid);
-        SlowPrint($"{CurrentGame.CurrentPlayer} will start the turn...\n");
-        Thread.Sleep(2000);
-        exitGame = false;
-        playAgainWithSameConfigs = false;
+        CommencingGameMessage();
 
-        while (true)
-        {
-            PerformMove();
+        exitGameChoice = false;
+        playAgainWithSameConfigsChoice = false;
 
-            if (CurrentGame.CurrentPlayerHasWon())
-            {
-                SlowPrint($"\nCongratulations to {CurrentGame.CurrentPlayer} on winning the game...");
-                break;
-            }
-
-            if (CurrentGame.AllGridsFilled())
-            {
-                SlowPrint("There are no available spaces left, and the game has ended in a tie...");
-                break;
-            }
-
-            NextTurn();
-        }
+        MainGameLoop();
 
         Thread.Sleep(2500);
 
         CurrentGame.ResetGameData();
 
-        GameFinishedChoiceDialog(out exitGame, out playAgainWithSameConfigs);
+        GameFinishedChoiceDialog(out exitGameChoice, out playAgainWithSameConfigsChoice);
     }
 
     private void DefaultCurrentPlayerTurnMessage()
@@ -180,7 +155,6 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-
     private void PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
     {
         SlowPrint($"{player} placed a symbol on {(NumberPlacement)pair} / {pair}");
@@ -196,12 +170,10 @@ public class GameController
         DisplayRules();
     }
 
-
     private void PerformCPUMove()
     {
         var cpu = CurrentGame.CurrentPlayer as CPU;
         var cpuGame = CurrentGame as CPUGame;
-
 
         bool getRandomMove = cpuGame.CPUCanWin(out var pairToUse) ? false : !cpuGame.CPUCanLose(out pairToUse);
 
@@ -220,9 +192,9 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-
     private void PerformPlayerMove()
     {
+        // TODO - Maybe remove loop
         while (true)
         {
             if (!_hasShownRules)
@@ -248,15 +220,11 @@ public class GameController
                 DefaultCurrentPlayerTurnMessage();
             }
 
-
-            // Todo - Fix bug, when player is holding down a key
-            //    var input = Console.ReadKey(true).KeyChar;
-
-            var input = Console.ReadLine();
+            var input = ReadInput();
+            Console.In.Close();
 
             string[] splitByComma = input.Split(",");
             string[] splitByDot = input.Split(".");
-
 
             string[]? parts = splitByComma.Length == 2 ? splitByComma :
                 splitByDot.Length == 2 ? splitByDot : null;
@@ -264,11 +232,15 @@ public class GameController
             IntegerPair pair;
             try
             {
-                if (parts != null)
+                if (parts != null) // If it isn't null, the Integer pair will have length of 2
                 {
                     int in1 = Convert.ToInt32(parts[0]) - 1;
                     int in2 = Convert.ToInt32(parts[1]) - 1;
                     pair = new IntegerPair(in1, in2);
+                    if (pair.First < 0 || 0 > pair.Second)
+                    {
+                        throw new Exception();
+                    }
                 }
                 else if (char.IsNumber(input.ToCharArray()[0]))
                 {
@@ -278,7 +250,7 @@ public class GameController
                 }
                 else
                 {
-                    return;
+                    throw new Exception();
                 }
             }
             catch
@@ -286,7 +258,6 @@ public class GameController
                 DefaultWrongFormatMessage("The move was written in an incorrect format.");
                 continue;
             }
-
 
             if (pair.First >= CurrentGame.GameGridSideLength || pair.Second >= CurrentGame.GameGridSideLength)
             {
@@ -314,6 +285,10 @@ public class GameController
 
     private void WelcomeMessage()
     {
+        if (Console.KeyAvailable)
+        {
+        } // Prevents the user from typing while welcome message is being printed
+
         SlowPrint("Welcome to TicTacToe", 3000);
         Thread.Sleep(2000);
         SlowPrint("I hope you enjoy the experience\n\n", 3000);
@@ -330,7 +305,7 @@ public class GameController
         ConsoleKey chosenGameMode;
         do
         {
-            chosenGameMode = Console.ReadKey(true).Key;
+            chosenGameMode = ReadInputKey();
         } while (chosenGameMode != ConsoleKey.D1 && chosenGameMode != ConsoleKey.D2);
 
         if (chosenGameMode == ConsoleKey.D1)
@@ -355,7 +330,8 @@ public class GameController
         ConsoleKeyInfo keyPressed;
         do
         {
-            keyPressed = Console.ReadKey(true);
+            // keyPressed = Console.ReadKey(true);
+            keyPressed = ReadInputKeyInfo();
         } while (!char.IsLetter(keyPressed.KeyChar));
 
         char reserved = keyPressed.KeyChar.ToString().ToUpper()[0];
@@ -376,7 +352,8 @@ public class GameController
 
         do
         {
-            keyPressed = Console.ReadKey(true);
+            // keyPressed = Console.ReadKey(true);
+            keyPressed = ReadInputKeyInfo();
         } while (!char.IsLetter(keyPressed.KeyChar) || keyPressed.KeyChar.ToString().ToUpper()[0] == reserved);
 
         Console.WriteLine();
@@ -412,7 +389,7 @@ public class GameController
         ConsoleKey selectShapeButton;
         do
         {
-            selectShapeButton = Console.ReadKey(true).Key;
+            selectShapeButton = ReadInputKey();
         } while (selectShapeButton != ConsoleKey.D1 && selectShapeButton != ConsoleKey.D2);
 
         return selectShapeButton == ConsoleKey.D1;
@@ -432,5 +409,68 @@ public class GameController
         }
 
         Thread.Sleep(700);
+    }
+
+    private void CommencingGameMessage()
+    {
+        SlowPrint("The game will now commence...");
+        Thread.Sleep(1000);
+        CurrentGame.ChooseRandomPlayer();
+        Console.WriteLine();
+        Console.WriteLine(CurrentGame.GameGrid);
+        SlowPrint($"{CurrentGame.CurrentPlayer} will start the turn...\n");
+        Thread.Sleep(2000);
+    }
+
+    private void MainGameLoop()
+    {
+        while (true)
+        {
+            PerformMove();
+
+            if (CurrentGame.CurrentPlayerHasWon())
+            {
+                SlowPrint($"\nCongratulations to {CurrentGame.CurrentPlayer} on winning the game...");
+                return;
+            }
+
+            if (CurrentGame.AllGridsFilled())
+            {
+                SlowPrint("There are no available spaces left, and the game has ended in a tie...");
+                return;
+            }
+
+            NextTurn();
+        }
+    }
+
+    private string? ReadInput()
+    {
+        while (Console.KeyAvailable) // Clear the input buffer
+        {
+            Console.ReadKey(true);
+        }
+
+        return Console.ReadLine();
+    }
+
+    private ConsoleKey ReadInputKey()
+    {
+        while (Console.KeyAvailable) // Clear the input buffer
+        {
+            Console.ReadKey(true);
+        }
+
+        return Console.ReadKey(true).Key;
+    }
+
+    private ConsoleKeyInfo ReadInputKeyInfo()
+    {
+        while (Console.KeyAvailable) // Clear the input buffer
+        {
+            Console.ReadKey(true);
+        }
+
+        return Console.ReadKey(true);
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic.CompilerServices;
+using TicTacToeCLI.Model;
 using TicTacToeCLI.View;
 
 namespace TicTacToeCLI.Models;

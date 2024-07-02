@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Text;
-using TicTacToeCLI.Models;
+using TicTacToeCLI.Model;
 
 namespace TicTacToeCLI.View;
 
