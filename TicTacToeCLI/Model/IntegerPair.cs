@@ -1,29 +1,26 @@
 namespace TicTacToeCLI.Model;
 
-public class IntegerPair
+/// <summary>
+/// Pair of integers - corresponds to the grid. Integer pair of [0,0] would be upper left
+/// </summary>
+public class IntegerPair(int first, int second)
 {
-    private readonly int _first;
-    private readonly int _second;
-    
-    public int First
-    {
-        get => _first;
-        private init => _first = value;
-    }
-    public int Second
-    {
-        get => _second;
-        private init => _second = value;
-    }
-    
-    public IntegerPair(int first, int second)
-    {
-        First = first;
-        Second = second;
-    }
+    // private readonly int _first;
+    // private readonly int _second;
 
+    /// <summary>
+    /// First value of integer pair
+    /// </summary>
+    public int First { get; } = first;
+
+    /// <summary>
+    /// Second value of integer pair
+    /// </summary>
+    public int Second { get; } = second;
+
+    /// <inheritdoc />
     public override string ToString()
     {
-        return $"{_first+1}.{_second+1}";
+        return $"{First + 1}.{Second + 1}";
     }
 }
