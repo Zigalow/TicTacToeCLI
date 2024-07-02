@@ -311,7 +311,7 @@ public class GameController
         if (chosenGameMode == ConsoleKey.D1)
         {
             SlowPrint("\nYou have chosen to play versus a CPU.\n\n");
-            gameMode = GameMode.PlayerVersusCPU;
+            gameMode = GameMode.PlayerVersusCpu;
         }
         else
         {
