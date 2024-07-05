@@ -1,58 +1,41 @@
-using System.Collections;
-using Microsoft.VisualBasic.CompilerServices;
-using TicTacToeCLI.Model;
-using TicTacToeCLI.View;
+using TicTacToeCLI.Models;
 
-namespace TicTacToeCLI.Models;
+namespace TicTacToeCLI.Model;
 
-public class CPU : Player
+/// <summary>
+/// This class represents a cpu.
+/// Besides inheriting from the <see cref="Player"/> class,
+/// it contains a list of positions on the grid that are registered as free,
+/// as well as methods for getting random positions and its own method of clearing its data   
+/// </summary>
+/// <constructor>
+/// Constructor for cpu where name is given as 'CPU', and the symbol is given as parameter
+/// </constructor>
+public class Cpu(char symbol) : Player("CPU", symbol)
 {
-    private List<IntegerPair> _availablePairs;
+    private List<IntegerPair> _availablePairs = new(CPUGame.AllAvailablePositionsArray);
 
-    private List<IntegerPair> DefaultAvailableSpaces { get; set; }
-
-    public CPU(char symbol) : base(symbol)
-    {
-        Name = "CPU";
-    }
-
-    public void FillAvailableSpaces(int gridSideLength)
-    {
-        DefaultAvailableSpaces = new List<IntegerPair>();
-
-        for (int i = 0; i < gridSideLength; i++)
-        {
-            for (int j = 0; j < gridSideLength; j++)
-            {
-                DefaultAvailableSpaces.Add(new IntegerPair(i, j));
-            }
-        }
-        _availablePairs = new List<IntegerPair>(DefaultAvailableSpaces);
-    }
-
-    /*public void GetRandomSpace(out int in1, out int in2)
+    /// <summary>
+    /// Returns a random <see cref="IntegerPair"/>. This is used when the cpu has to generate a random move.
+    /// The move will be generated from the free positions that the cpu has registered in a list.
+    /// After a random move has been generated, it will remove that move the list of registered positions that are free
+    /// </summary>
+    /// <returns>a randomly generated move from a list of free positions</returns>
+    public IntegerPair GetRandomPosition()
     {
         int index = new Random().Next(_availablePairs.Count);
         IntegerPair pair = _availablePairs[index];
         _availablePairs.RemoveAt(index);
 
-        in1 = pair.First;
-        in2 = pair.Second;
-    }*/
-
-    public IntegerPair GetRandomSpace()
-    {
-        int index = new Random().Next(_availablePairs.Count);
-        IntegerPair pair = _availablePairs[index];
-        _availablePairs.RemoveAt(index);
-       
-        
         return pair;
     }
 
-    public override void ResetData()
+    /// <summary>
+    /// Clears the data of the CPU. This includes clearing the list of <see cref="Player.SymbolPositions"/>
+    /// </summary>
+    public override void ClearData()
     {
-        _availablePairs = new List<IntegerPair>(DefaultAvailableSpaces);
-        PlacedCurrently.Clear();
+        base.ClearData();
+        _availablePairs = new List<IntegerPair>(CPUGame.AllAvailablePositionsArray);
     }
 }
