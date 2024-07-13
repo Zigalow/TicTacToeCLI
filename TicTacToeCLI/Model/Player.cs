@@ -5,7 +5,7 @@ namespace TicTacToeCLI.Model;
 /// It contains a list of <see cref="SymbolPositions"/>, methods for retrieving the list and adding an <see cref="IntegerPair"/> to the list,
 /// as well as a <see cref="Name"/> and <see cref="Symbol"/> property.
 /// </summary>
-/// <remarks>This class should be inherited by a computer player.</remarks>
+/// <remarks>This class should be inherited by the <see cref="Cpu"/> class.</remarks>
 public class Player
 {
     /// <summary>
@@ -13,28 +13,24 @@ public class Player
     /// </summary>
     private readonly List<IntegerPair> _symbolPositions;
 
-    private static int _numberOfPlayers;
-
     /// <summary>
     /// The chosen symbol of the player
     /// </summary>
     public char Symbol { get; }
 
     /// <summary>
-    /// Property that returns the number of players in the game. It's designed to not be more than two players.
+    /// Property that returns the number of players in the game. 
     /// </summary>
+    private static int NumberOfPlayers { get; set; }
 
-    private static int NumberOfPlayers
+    /// <summary>
+    /// Method for returning the player number It's designed to not be for more than two players.
+    /// The value returned can only be 1 or 2.
+    /// </summary>
+    private static int GetPlayerNumber()
     {
-        get
-        {
-            if (_numberOfPlayers >= 2)
-            {
-                _numberOfPlayers = 0;
-            }
-
-            return ++_numberOfPlayers;
-        }
+        NumberOfPlayers = (NumberOfPlayers % 2) + 1;
+        return NumberOfPlayers;
     }
 
     /// <summary>
@@ -54,7 +50,7 @@ public class Player
     public Player(char symbol) : this(null, symbol)
     {
     }
-    
+
     /// <summary>
     /// Protected constructor for <see cref="Player"/> class.
     /// Currently intended to give generic name to local players, where null is passed in as name in the chained constructor
@@ -64,11 +60,9 @@ public class Player
     protected Player(string? name, char symbol)
     {
         Symbol = symbol;
-        Name = string.IsNullOrEmpty(name) ? $"Player {NumberOfPlayers}" : name;
+        Name = string.IsNullOrEmpty(name) ? $"Player {GetPlayerNumber()}" : name;
         _symbolPositions = new List<IntegerPair>();
     }
-
-    
 
     /// <summary>
     /// Adds an <see cref="IntegerPair"/> to the list of <see cref="SymbolPositions"/>, representing that a symbol has been placed by a player
