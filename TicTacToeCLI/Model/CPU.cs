@@ -13,6 +13,7 @@ namespace TicTacToeCLI.Model;
 /// </constructor>
 public class Cpu(char symbol) : Player("CPU", symbol)
 {
+    private static readonly Random Random = new();
     private List<IntegerPair> _availablePairs = new(CPUGame.AllAvailablePositionsArray);
 
     /// <summary>
@@ -23,7 +24,7 @@ public class Cpu(char symbol) : Player("CPU", symbol)
     /// <returns>a randomly generated move from a list of free positions</returns>
     public IntegerPair GetRandomPosition()
     {
-        int index = new Random().Next(_availablePairs.Count);
+        int index = Random.Next(_availablePairs.Count);
         IntegerPair pair = _availablePairs[index];
         _availablePairs.RemoveAt(index);
 

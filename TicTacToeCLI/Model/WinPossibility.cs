@@ -30,7 +30,7 @@ public class WinPossibility
     /// <param name="currentlyPlacedSpaces">currentlyPlacedSpaces">List of indices corresponding to places where the player has placed
     /// its symbols on the grid</param>
     /// <param name="gridLength">Side length of the grid that's currently being played on.</param>
-    public WinPossibility(List<IntegerPair> currentlyPlacedSpaces, int gridLength)
+    public WinPossibility(IReadOnlyList<IntegerPair> currentlyPlacedSpaces, int gridLength)
     {
         var vert =
             currentlyPlacedSpaces.GroupBy(pair => pair.First)
