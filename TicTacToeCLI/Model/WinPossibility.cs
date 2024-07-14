@@ -1,6 +1,4 @@
-using TicTacToeCLI.Model;
-
-namespace TicTacToeCLI.Models;
+namespace TicTacToeCLI.Model;
 
 /// <summary>
 /// Class containing lists of different win-possibilities. Empty lists means no win-possibility.
