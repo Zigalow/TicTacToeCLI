@@ -1,11 +1,9 @@
 using TicTacToeCLI.Model;
-using TicTacToeCLI.Models;
-using TicTacToeCLI.View;
 
-// Todo - XML-doc and code refactoring (code analysis)
-// Todo - Enhance UI experience in terms of text
+// Todo - XML-doc and code refactoring (code analysis) - [in progress]
+// Todo - Enhance UI experience in terms of text - especially when it comes to the rules or when mistyping
 // Todo - Add readme
-// Todo - Auto fills the spots when it's a tie %%
+// Todo - Auto fills the spots when it's a tie (maybe)
 namespace TicTacToeCLI.Controller;
 
 public class GameController
