@@ -1,5 +1,3 @@
-using TicTacToeCLI.Models;
-
 namespace TicTacToeCLI.Model;
 
 /// <summary>
@@ -14,7 +12,7 @@ namespace TicTacToeCLI.Model;
 public class Cpu(char symbol) : Player("CPU", symbol)
 {
     private static readonly Random Random = new();
-    private List<IntegerPair> _availablePairs = new(CPUGame.AllAvailablePositionsArray);
+    private List<IntegerPair> _availablePairs = new(CpuGame.AllGridPositions);
 
     /// <summary>
     /// Returns a random <see cref="IntegerPair"/>. This is used when the cpu has to generate a random move.
@@ -34,9 +32,9 @@ public class Cpu(char symbol) : Player("CPU", symbol)
     /// <summary>
     /// Clears the data of the CPU. This includes clearing the list of <see cref="Player.SymbolPositions"/>
     /// </summary>
-    public override void ClearData()
+    internal override void ClearData()
     {
         base.ClearData();
-        _availablePairs = new List<IntegerPair>(CPUGame.AllAvailablePositionsArray);
+        _availablePairs = new List<IntegerPair>(CpuGame.AllGridPositions);
     }
 }

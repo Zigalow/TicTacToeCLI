@@ -3,7 +3,8 @@ using TicTacToeCLI.Model;
 namespace TicTacToeCLI.Models;
 
 /// <summary>
-/// Class containing lists of different win-possibilities. Empty lists means no win-possibility. 
+/// Class containing lists of different win-possibilities. Empty lists means no win-possibility.
+/// Doesn't take into account if opponent is blocking a win-opportunity.
 /// </summary>
 public class WinPossibility
 {
@@ -37,15 +38,12 @@ public class WinPossibility
                 .Where(group => group.Count() >= gridLength - 1)
                 .Select(group => group.Key).ToList();
 
-
         var sides = currentlyPlacedSpaces.GroupBy(pair => pair.Second)
             .Where(group => group.Count() >= gridLength - 1)
             .Select(group => group.Key).ToList();
 
-
         int matchesLeftCrosses = 0;
         int matchesRightCrosses = 0;
-
 
         foreach (var pair in currentlyPlacedSpaces)
         {
@@ -65,7 +63,6 @@ public class WinPossibility
             matchesLeftCrosses == gridLength - 1,
             matchesRightCrosses == gridLength - 1
         };
-
 
         Sides = sides;
         Vertically = vert;

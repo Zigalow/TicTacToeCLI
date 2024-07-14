@@ -1,6 +1,5 @@
 using Microsoft.VisualBasic.CompilerServices;
 using TicTacToeCLI.Model;
-using TicTacToeCLI.View;
 
 namespace TicTacToeCLI.Models;
 
@@ -29,7 +28,6 @@ public class NumberPlacement
 
         return new NumberPlacement((first + second));
 
-
         // 0  1  2
 
         // 0 = 0, 3, 6
@@ -41,7 +39,7 @@ public class NumberPlacement
     {
         return $"{_number + 1}";
     }
-    
+
     public static void SetGridSize(int gridSize)
     {
         _gridSize = gridSize;

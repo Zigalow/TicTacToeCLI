@@ -53,7 +53,7 @@ public class Player
 
     /// <summary>
     /// Protected constructor for <see cref="Player"/> class.
-    /// Currently intended to give generic name to local players, where null is passed in as name in the chained constructor
+    /// Currently intended to give generic name to human players, where null is passed in as name in the chained constructor
     /// </summary>
     /// <param name="name">Displayed name of player</param>
     /// <param name="symbol">Displayed symbol of player</param>
@@ -76,7 +76,7 @@ public class Player
     /// <summary>
     /// Clears the data of the player. This includes clearing the list of <see cref="SymbolPositions"/>
     /// </summary>
-    public virtual void ClearData()
+    internal virtual void ClearData()
     {
         _symbolPositions.Clear();
     }

@@ -2,9 +2,9 @@
 
 namespace TicTacToeCLI;
 
-abstract class Program
+internal abstract class Program
 {
-    static void Main()
+    private static void Main()
     {
         GameController gameController = new();
         gameController.Start();

@@ -1,5 +1,4 @@
 using TicTacToeCLI.Models;
-using TicTacToeCLI.View;
 
 namespace TicTacToeCLI.Model;
 
@@ -13,6 +12,7 @@ public class Game
     /// The side length of the game grid. This should always be 3 in TicTacToe, but can be changed for playing with bigger grids
     /// </summary>
     public const int GameGridSideLength = 3;
+
     private static readonly Random Random = new();
 
     /// <summary>
@@ -108,6 +108,7 @@ public class Game
     public void ResetGame()
     {
         ResetPlayerData();
+        GameGrid.ClearCells();
         CurrentPlayer = ChooseRandomPlayer();
         TurnCounter = 1;
     }
