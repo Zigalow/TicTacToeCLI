@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
 using TicTacToeCLI.Models;
 
+
+// Todo - Fix so that a player is always player 1 when playing against the CPU
+
 namespace TicTacToeCLI.Model;
 
 /// <summary>
