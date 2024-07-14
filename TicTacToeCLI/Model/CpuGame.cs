@@ -1,19 +1,28 @@
 using System.Collections.ObjectModel;
-using TicTacToeCLI.Models;
-
-
-// Todo - Fix so that a player is always player 1 when playing against the CPU
 
 namespace TicTacToeCLI.Model;
 
 /// <summary>
-/// The CPUGame class inherits from the Game class and represents a game of Tic Tac Toe between a human player and a CPU player.
+/// The CpuGame class inherits from the Game class and represents a game of Tic Tac Toe between a human player and a CPU player.
 /// </summary>
 /// <remarks>
 /// This class contains methods to determine if the CPU player can win or lose in the next move. It also generates all possible grid positions at the start of the game.
 /// </remarks>
-public class CpuGame(Player player1, Cpu cpu) : Game(player1, cpu)
+public class CpuGame : Game
 {
+
+    /// <summary>
+    /// Constructor for the CpuGame class. Initializes the human player and the CPU player,
+    /// and sets the name of the human player to "Player 1".
+    /// </summary>
+    /// <param name="player1"> The human player participating in the game.</param>
+    /// <param name="cpu"> The CPU player participating in the game.</param>
+    public CpuGame(Player player1, Cpu cpu) : base(player1, cpu)
+    {
+        Cpu = cpu;
+        player1.SetName("Player 1");
+    }
+
     /// <summary>
     /// Gets a read-only list of all possible grid positions in the game.
     /// </summary>
@@ -29,7 +38,7 @@ public class CpuGame(Player player1, Cpu cpu) : Game(player1, cpu)
     public static IReadOnlyList<IntegerPair> AllGridPositions { get; } =
         GenerateAllGridPositions(GameGridSideLength);
 
-    private Cpu Cpu { get; } = cpu;
+    private Cpu Cpu { get; }
 
     /// <summary>
     /// Determines if the CPU player can win in the next move.

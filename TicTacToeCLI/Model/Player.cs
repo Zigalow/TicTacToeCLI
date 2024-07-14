@@ -41,7 +41,7 @@ public class Player
     /// <summary>
     /// The chosen name of the player
     /// </summary>
-    private string Name { get; }
+    private string Name { get; set; }
 
     /// <summary>
     /// Constructor for <see cref="Player"/> class. Chained to the protected constructor, where null is passed in as a name, to get generic name for the player
@@ -88,5 +88,10 @@ public class Player
     public override string ToString()
     {
         return $"{Name} with symbol of '{Symbol}'";
+    }
+
+    public void SetName(string name)
+    {
+        Name = name;
     }
 }
