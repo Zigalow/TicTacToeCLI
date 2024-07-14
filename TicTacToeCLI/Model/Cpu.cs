@@ -12,7 +12,7 @@ namespace TicTacToeCLI.Model;
 public class Cpu(char symbol) : Player("CPU", symbol)
 {
     private static readonly Random Random = new();
-    private List<IntegerPair> _availablePairs = new(CpuGame.AllGridPositions);
+    private List<IntegerPair> _availablePairs = [..CpuGame.AllGridPositions];
 
     /// <summary>
     /// Returns a random <see cref="IntegerPair"/>. This is used when the cpu has to generate a random move.
@@ -35,6 +35,6 @@ public class Cpu(char symbol) : Player("CPU", symbol)
     internal override void ClearData()
     {
         base.ClearData();
-        _availablePairs = new List<IntegerPair>(CpuGame.AllGridPositions);
+        _availablePairs = [..CpuGame.AllGridPositions];
     }
 }

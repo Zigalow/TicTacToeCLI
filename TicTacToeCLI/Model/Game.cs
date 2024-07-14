@@ -1,5 +1,3 @@
-using TicTacToeCLI.Models;
-
 namespace TicTacToeCLI.Model;
 
 /// <summary>
@@ -45,7 +43,6 @@ public class Game
         GameGrid = new Grid(GameGridSideLength);
         Players = new[] { player1, player2 }.AsReadOnly();
         CurrentPlayer = ChooseRandomPlayer();
-        NumberPlacement.SetGridSize(GameGridSideLength);
     }
 
     /// <summary>

@@ -90,6 +90,10 @@ public class Player
         return $"{Name} with symbol of '{Symbol}'";
     }
 
+    /// <summary>
+    /// Sets the name of the player
+    /// </summary>
+    /// <param name="name"> the name to be set for the player</param>
     public void SetName(string name)
     {
         Name = name;
