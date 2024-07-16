@@ -37,14 +37,14 @@ public class GameController
         {
             CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
                 ? new Game(new Player('X'), new Player('O'))
-                : new CPUGame(new Player('X'), new CPU('O'));
+                : new CpuGame(new Player('X'), new Cpu('O'));
             return;
         }
 
         SelectShapes(in _gameMode, out var player1, out var player2);
         CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
             ? new Game(player1, player2)
-            : new CPUGame(player1, player2 as CPU);
+            : new CpuGame(player1, player2 as Cpu);
     }
 
     private void ExplainRules()
@@ -75,7 +75,7 @@ public class GameController
 
     private void PerformMove()
     {
-        if (CurrentGame.CurrentPlayer is CPU)
+        if (CurrentGame.CurrentPlayer is Cpu)
         {
             PerformCPUMove();
         }
@@ -105,7 +105,7 @@ public class GameController
         switch (playAgain)
         {
             case ConsoleKey.D1:
-                CurrentGame.GameGrid.EmptyGrid();
+                CurrentGame.ResetGame();
                 playAgainWithSameConfigs = true;
                 break;
             case ConsoleKey.D2:
@@ -128,7 +128,7 @@ public class GameController
 
         Thread.Sleep(2500);
 
-        CurrentGame.ResetGameData();
+        // CurrentGame.ResetPlayerData();
 
         GameFinishedChoiceDialog(out exitGameChoice, out playAgainWithSameConfigsChoice);
     }
@@ -145,9 +145,9 @@ public class GameController
             "Specify your move, in one of the two formats below and press enter:");
         Thread.Sleep(500);
         Console.WriteLine(
-            $"\"x.y\" or \"x,y\": x is the x-axis, and y is the y-axis. Top left corner is 1.1, whereas bottom left corner would be \"1.{CurrentGame.GameGridSideLength}\".");
+            $"\"x.y\" or \"x,y\": x is the x-axis, and y is the y-axis. Top left corner is 1.1, whereas bottom left corner would be \"1.{Game.GameGridSideLength}\".");
         Console.WriteLine(
-            $"\"z\": z is the allocated space in the grid. Top left corner would be 1, whereas bottom left corner would be {CurrentGame.GameGridSideLength * CurrentGame.GameGridSideLength - (CurrentGame.GameGridSideLength - 1)}.");
+            $"\"z\": z is the allocated space in the grid. Top left corner would be 1, whereas bottom left corner would be {Game.GameGridSideLength * Game.GameGridSideLength - (Game.GameGridSideLength - 1)}.");
         // Thread.Sleep(1000);
         // SlowPrint("...", 500000);
         Thread.Sleep(1000);
@@ -155,7 +155,7 @@ public class GameController
 
     private void PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
     {
-        SlowPrint($"{player} placed a symbol on {(NumberPlacement)pair} / {pair}");
+        SlowPrint($"{player} placed a symbol on {(GridPosition)pair} / {pair}");
     }
 
     private void DefaultWrongFormatMessage(string text)
@@ -170,20 +170,20 @@ public class GameController
 
     private void PerformCPUMove()
     {
-        var cpu = CurrentGame.CurrentPlayer as CPU;
-        var cpuGame = CurrentGame as CPUGame;
+        var cpu = CurrentGame.CurrentPlayer as Cpu;
+        var cpuGame = CurrentGame as CpuGame;
 
-        bool getRandomMove = cpuGame.CPUCanWin(out var pairToUse) ? false : !cpuGame.CPUCanLose(out pairToUse);
+        bool getRandomMove = cpuGame.CpuCanWin(out var pairToUse) ? false : !cpuGame.CpuCanLose(out pairToUse);
 
         if (getRandomMove)
         {
             do
             {
-                pairToUse = cpu.GetRandomSpace();
+                pairToUse = cpu.GetRandomPosition();
             } while (!ValidMove(pairToUse));
         }
 
-        cpu.PlacedCurrently.Add(pairToUse);
+        cpu.AddSymbolPosition(pairToUse);
         CurrentGame.GameGrid[pairToUse.First, pairToUse.Second] = CurrentGame.CurrentPlayer.Symbol;
         Console.WriteLine(CurrentGame.GameGrid);
         PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pairToUse);
@@ -242,8 +242,8 @@ public class GameController
                 }
                 else if (char.IsNumber(input.ToCharArray()[0]))
                 {
-                    NumberPlacement number =
-                        new NumberPlacement(Convert.ToInt32(input) - 1);
+                    GridPosition number =
+                        new GridPosition(Convert.ToInt32(input) - 1);
                     pair = (IntegerPair)number;
                 }
                 else
@@ -257,7 +257,7 @@ public class GameController
                 continue;
             }
 
-            if (pair.First >= CurrentGame.GameGridSideLength || pair.Second >= CurrentGame.GameGridSideLength)
+            if (pair.First >= Game.GameGridSideLength || pair.Second >= Game.GameGridSideLength)
             {
                 DefaultWrongFormatMessage("You are trying to place a symbol outside of the grid.");
                 continue;
@@ -271,7 +271,7 @@ public class GameController
             }
             else
             {
-                CurrentGame.CurrentPlayer.PlacedCurrently.Add(pair);
+                CurrentGame.CurrentPlayer.AddSymbolPosition(pair);
                 CurrentGame.GameGrid[pair] = CurrentGame.CurrentPlayer.Symbol;
                 Console.WriteLine(CurrentGame.GameGrid);
                 PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pair);
@@ -365,7 +365,7 @@ public class GameController
         Console.WriteLine();
 
         player1 = new Player(shape1);
-        player2 = gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new CPU(shape2);
+        player2 = gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2);
     }
 
     private bool ValidMove(int in1, int in2)
@@ -413,10 +413,12 @@ public class GameController
     {
         SlowPrint("The game will now commence...");
         Thread.Sleep(1000);
-        CurrentGame.ChooseRandomPlayer();
+        // CurrentGame.ChooseRandomPlayer();
         Console.WriteLine();
         Console.WriteLine(CurrentGame.GameGrid);
         SlowPrint($"{CurrentGame.CurrentPlayer} will start the turn...\n");
+        // SlowPrint("...", delayInMicroseconds: 333000, false);
+        // SlowPrint("\n");
         Thread.Sleep(2000);
     }
 
@@ -432,7 +434,7 @@ public class GameController
                 return;
             }
 
-            if (CurrentGame.AllGridsFilled())
+            if (CurrentGame.GameIsDrawn())
             {
                 SlowPrint("There are no available spaces left, and the game has ended in a tie...");
                 return;
