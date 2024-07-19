@@ -13,7 +13,7 @@ namespace TicTacToeCLI.Model;
 /// IntegerPair pair = new IntegerPair(0, 0);
 /// </code>
 /// </example>
-public class IntegerPair
+public readonly struct IntegerPair
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="IntegerPair"/> class.
