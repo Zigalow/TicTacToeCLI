@@ -2,12 +2,12 @@ namespace TicTacToeCLI.Model;
 
 /// <summary>
 /// Represents a position on the Tic-Tac-Toe grid using a single number.
-/// This class allows for conversion between single-number representation and coordinate pairs.
+/// This struct allows for conversion between single-number representation and coordinate pairs.
 /// </summary>
 /// <remarks>
 /// Every calculation is done using 0-based index.
 /// </remarks>
-public class GridPosition
+public readonly struct GridPosition
 {
     private const int GridSize = Game.GameGridSideLength;
 
