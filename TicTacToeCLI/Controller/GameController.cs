@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using TicTacToeCLI.Model;
 
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
@@ -172,8 +173,9 @@ public class GameController
     {
         var cpu = CurrentGame.CurrentPlayer as Cpu;
         var cpuGame = CurrentGame as CpuGame;
+        IntegerPair pairToUse;
 
-        bool getRandomMove = cpuGame.CpuCanWin(out var pairToUse) ? false : !cpuGame.CpuCanLose(out pairToUse);
+        bool getRandomMove = cpuGame.CpuCanWin(out var returnedPair) ? false : !cpuGame.CpuCanLose(out returnedPair);
 
         if (getRandomMove)
         {
@@ -181,6 +183,11 @@ public class GameController
             {
                 pairToUse = cpu.GetRandomPosition();
             } while (!ValidMove(pairToUse));
+        }
+        else
+        {
+            Debug.Assert(returnedPair != null, nameof(returnedPair) + " != null");
+            pairToUse = returnedPair.Value;
         }
 
         cpu.AddSymbolPosition(pairToUse);
