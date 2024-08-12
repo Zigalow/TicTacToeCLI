@@ -42,10 +42,14 @@ public class GameController
             return;
         }
 
-        SelectShapes(in _gameMode, out var player1, out var player2);
-        CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
-            ? new Game(player1, player2)
-            : new CpuGame(player1, player2 as Cpu);
+        (Player player1, Player player2) = SelectShapes(_gameMode);
+
+        CurrentGame = _gameMode switch
+        {
+            GameMode.PlayerVersusPlayer => new Game(player1, player2),
+            GameMode.PlayerVersusCpu when player2 is Cpu cpu => new CpuGame(player1, cpu),
+            _ => throw new InvalidOperationException("Invalid game mode or player configuration")
+        };
     }
 
     private void ExplainRules()
