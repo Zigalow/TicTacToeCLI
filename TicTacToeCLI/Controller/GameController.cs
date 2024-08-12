@@ -139,6 +139,7 @@ public class GameController
         CommencingGameMessage();
 
         MainGameLoop();
+
         Thread.Sleep(2500);
     }
 
@@ -157,7 +158,6 @@ public class GameController
             $"\"x.y\" or \"x,y\": x is the x-axis, and y is the y-axis. Top left corner is 1.1, whereas bottom left corner would be \"1.{Game.GameGridSideLength}\".");
         Console.WriteLine(
             $"\"z\": z is the allocated space in the grid. Top left corner would be 1, whereas bottom left corner would be {Game.GameGridSideLength * Game.GameGridSideLength - (Game.GameGridSideLength - 1)}.");
-        // Thread.Sleep(1000);
         // SlowPrint("...", 500000);
         Thread.Sleep(1000);
     }
@@ -422,12 +422,12 @@ public class GameController
 
     private bool ValidMove(int in1, int in2)
     {
-        return CurrentGame.GameGrid.UnavailableSpace(in1, in2);
+        return CurrentGame.GameGrid.IsSpaceAvailable(in1, in2);
     }
 
     private bool ValidMove(IntegerPair pair)
     {
-        return CurrentGame.GameGrid.UnavailableSpace(pair.First, pair.Second);
+        return CurrentGame.GameGrid.IsSpaceAvailable(pair.First, pair.Second);
     }
 
     private bool SkipShapeSelection()
