@@ -33,7 +33,7 @@ public class GameController
 
     private void Setup()
     {
-        SelectGameMode(out _gameMode);
+        _gameMode = SelectGameMode();
         if (SkipShapeSelection())
         {
             CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
@@ -300,79 +300,72 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-    private void SelectGameMode(out GameMode gameMode)
+    private GameMode SelectGameMode()
     {
         SlowPrint("How would you like to play?");
 
         Console.WriteLine("Alone versus a CPU - (Press 1)");
         Console.WriteLine("Versus another local player - (Press 2)\n");
 
-        ConsoleKey chosenGameMode;
+        ConsoleKey chosenKey;
         do
         {
-            chosenGameMode = ReadInputKey();
-        } while (chosenGameMode != ConsoleKey.D1 && chosenGameMode != ConsoleKey.D2);
+            chosenKey = ReadInputKey();
+        } while (chosenKey != ConsoleKey.D1 && chosenKey != ConsoleKey.D2);
 
-        if (chosenGameMode == ConsoleKey.D1)
-        {
-            SlowPrint("\nYou have chosen to play versus a CPU.\n\n");
-            gameMode = GameMode.PlayerVersusCpu;
-        }
-        else
-        {
-            SlowPrint("\nYou have chosen to play versus a local player.\n\n");
-            gameMode = GameMode.PlayerVersusPlayer;
-        }
+        GameMode chosenGameMode = chosenKey == ConsoleKey.D1 ? GameMode.PlayerVersusCpu : GameMode.PlayerVersusPlayer;
+
+        string modeDescription = chosenGameMode == GameMode.PlayerVersusCpu ? "a CPU" : "a local player";
+
+        SlowPrint($"\nYou have chosen to play versus {modeDescription}.\n\n");
+
+        return chosenGameMode;
     }
 
-    private void SelectShapes(in GameMode gameMode, out Player player1, out Player player2)
+    private (Player player1, Player player2) SelectShapes(GameMode gameMode)
     {
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
-            ? "Which shape would you like to be, Player 1?"
-            : "Which shape would you like for yourself to be?");
-        SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
-
-        ConsoleKeyInfo keyPressed;
-        do
+        char GetShapeInput(string prompt, char? excludeShape = null)
         {
-            // keyPressed = Console.ReadKey(true);
-            keyPressed = ReadInputKeyInfo();
-        } while (!char.IsLetter(keyPressed.KeyChar));
+            SlowPrint(prompt);
+            SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
 
-        char reserved = keyPressed.KeyChar.ToString().ToUpper()[0];
+            ConsoleKeyInfo keyPressed;
+            char shape;
+            do
+            {
+                keyPressed = ReadInputKeyInfo();
+                shape = char.ToUpper(keyPressed.KeyChar);
+            } while (!char.IsLetter(shape) || shape == excludeShape);
 
-        Console.WriteLine();
+            Console.WriteLine();
+            return shape;
+        }
 
-        char shape1 = keyPressed.KeyChar.ToString().ToUpper()[0];
+        string player1Prompt = gameMode == GameMode.PlayerVersusPlayer
+            ? "Which shape would you like to be, Player 1?"
+            : "Which shape would you like for yourself to be?";
+
+        char shape1 = GetShapeInput(player1Prompt);
+
         SlowPrint(gameMode == GameMode.PlayerVersusPlayer
             ? $"Player 1 chose the shape {shape1}."
             : $"You chose the shape {shape1} for yourself.");
 
         Console.WriteLine();
 
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
+        string player2Prompt = gameMode == GameMode.PlayerVersusPlayer
             ? "Which shape would you like to be, Player 2?"
-            : "Which shape would you like for the CPU to be?");
-        SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
+            : "Which shape would you like for the CPU to be?";
 
-        do
-        {
-            // keyPressed = Console.ReadKey(true);
-            keyPressed = ReadInputKeyInfo();
-        } while (!char.IsLetter(keyPressed.KeyChar) || keyPressed.KeyChar.ToString().ToUpper()[0] == reserved);
+        char shape2 = GetShapeInput(player2Prompt, shape1);
 
-        Console.WriteLine();
-
-        char shape2 = keyPressed.KeyChar.ToString().ToUpper()[0];
         SlowPrint(gameMode == GameMode.PlayerVersusPlayer
             ? $"Player 2 chose the shape {shape2}"
             : $"You chose the shape {shape2} for the CPU");
-        shape2 = keyPressed.KeyChar.ToString().ToUpper()[0];
 
         Console.WriteLine();
 
-        player1 = new Player(shape1);
-        player2 = gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2);
+        return (new Player(shape1), gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2));
     }
 
     private bool ValidMove(int in1, int in2)
