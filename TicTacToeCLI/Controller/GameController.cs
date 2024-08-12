@@ -27,7 +27,7 @@ public class GameController
                 Setup();
             }
 
-            RunGame(out exit, out sameConfig);
+            RunGame();
             (sameConfig, exit) = GameFinishedChoiceDialog();
         } while (!exit);
     }
@@ -134,20 +134,12 @@ public class GameController
         }
     }
 
-    private void RunGame(out bool exitGameChoice, out bool playAgainWithSameConfigsChoice)
+    private void RunGame()
     {
         CommencingGameMessage();
 
-        exitGameChoice = false;
-        playAgainWithSameConfigsChoice = false;
-
         MainGameLoop();
-
         Thread.Sleep(2500);
-
-        // CurrentGame.ResetPlayerData();
-
-        GameFinishedChoiceDialog(out exitGameChoice, out playAgainWithSameConfigsChoice);
     }
 
     private void DefaultCurrentPlayerTurnMessage()
