@@ -58,7 +58,7 @@ public class Grid : IEnumerable
     /// <returns><c>true</c> if the position is available; otherwise, <c>false</c>.</returns>
     public bool IsSpaceAvailable(int in1, int in2)
     {
-        return _gridFormat[in1, in2] != null;
+        return _gridFormat[in1, in2] == null;
     }
 
     /// <summary>
