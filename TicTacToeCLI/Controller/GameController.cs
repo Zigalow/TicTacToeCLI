@@ -28,6 +28,7 @@ public class GameController
             }
 
             RunGame(out exit, out sameConfig);
+            (sameConfig, exit) = GameFinishedChoiceDialog();
         } while (!exit);
     }
 
@@ -90,35 +91,46 @@ public class GameController
         }
     }
 
-    private void GameFinishedChoiceDialog(out bool exitGame, out bool playAgainWithSameConfigs)
+    private (bool exitGame, bool playAgainWithSameConfigs) GameFinishedChoiceDialog()
     {
-        exitGame = false;
-        playAgainWithSameConfigs = false;
-
         SlowPrint("\nWould you like to play again?\n");
+        DisplayOptions();
+        ConsoleKey userChoice = GetUserChoice();
 
-        Console.WriteLine("Play again with same configurations - (Press 1)");
-        Console.WriteLine("Play again with different configurations - (Press 2)");
-        Console.WriteLine("Exit game - (Press 3)\n");
+        return ProcessChoice(userChoice);
 
-        ConsoleKey playAgain;
-        do
+        void DisplayOptions()
         {
-            playAgain = ReadInputKey();
-        } while (playAgain != ConsoleKey.D1 && playAgain != ConsoleKey.D2 && playAgain != ConsoleKey.D3);
+            Console.WriteLine("Play again with same configurations - (Press 1)");
+            Console.WriteLine("Play again with different configurations - (Press 2)");
+            Console.WriteLine("Exit game - (Press 3)\n");
+        }
 
-        switch (playAgain)
+        ConsoleKey GetUserChoice()
         {
-            case ConsoleKey.D1:
-                CurrentGame.ResetGame();
-                playAgainWithSameConfigs = true;
-                break;
-            case ConsoleKey.D2:
-                playAgainWithSameConfigs = false;
-                break;
-            default:
-                exitGame = true;
-                break;
+            ConsoleKey choice;
+            do
+            {
+                choice = ReadInputKey();
+            } while (choice != ConsoleKey.D1 && choice != ConsoleKey.D2 && choice != ConsoleKey.D3);
+
+            return choice;
+        }
+
+        (bool exitGame, bool playAgainWithSameConfigs) ProcessChoice(ConsoleKey choice)
+        {
+            switch (choice)
+            {
+                case ConsoleKey.D1:
+                    CurrentGame.ResetGame();
+                    return (exitGame: false, playAgainWithSameConfigs: true);
+                case ConsoleKey.D2:
+                    return (exitGame: false, playAgainWithSameConfigs: false);
+                case ConsoleKey.D3:
+                    return (exitGame: true, playAgainWithSameConfigs: false);
+                default:
+                    throw new InvalidOperationException("Invalid choice");
+            }
         }
     }
 
