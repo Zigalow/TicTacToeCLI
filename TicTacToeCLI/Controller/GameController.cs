@@ -82,7 +82,7 @@ public class GameController
     {
         if (CurrentGame.CurrentPlayer is Cpu)
         {
-            PerformCPUMove();
+            PerformCpuMove();
         }
         else
         {
@@ -173,13 +173,57 @@ public class GameController
         DisplayRules();
     }
 
-    private void PerformCPUMove()
+    private void PerformCpuMove()
     {
-        var cpu = CurrentGame.CurrentPlayer as Cpu;
-        var cpuGame = CurrentGame as CpuGame;
+        if (CurrentGame is not CpuGame cpuGame || CurrentGame.CurrentPlayer is not Cpu cpu)
+        {
+            throw new InvalidOperationException("PerformCpuMove called with invalid game or player type.");
+        }
+
+        /*var cpu = CurrentGame.CurrentPlayer as Cpu;
+        var cpuGame = CurrentGame as CpuGame;*/
+
+        IntegerPair movePosition = GetOptimalMove() ?? GetRandomValidMove();
+
+        ApplyMove(movePosition);
+        DisplayMoveResult(movePosition);
+        return;
+
+        IntegerPair? GetOptimalMove()
+        {
+            return cpuGame.CpuCanWin(out var winningMove) ? winningMove :
+                cpuGame.CpuCanLose(out var blockingMove) ? blockingMove :
+                null;
+        }
+
+        IntegerPair GetRandomValidMove()
+        {
+            IntegerPair move;
+            do
+            {
+                move = cpu.GetRandomPosition();
+            } while (!ValidMove(move));
+
+            return move;
+        }
+
+        void ApplyMove(IntegerPair position)
+        {
+            cpu.AddSymbolPosition(position);
+            CurrentGame.GameGrid[position.First, position.Second] = cpu.Symbol;
+        }
+
+        void DisplayMoveResult(IntegerPair position)
+        {
+            Console.WriteLine(CurrentGame.GameGrid);
+            PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, position);
+            Thread.Sleep(1000);
+        }
+
+        /*
         IntegerPair pairToUse;
 
-        bool getRandomMove = cpuGame.CpuCanWin(out var returnedPair) ? false : !cpuGame.CpuCanLose(out returnedPair);
+        bool getRandomMove = !cpuGame.CpuCanWin(out var returnedPair) && !cpuGame.CpuCanLose(out returnedPair);
 
         if (getRandomMove)
         {
@@ -198,7 +242,7 @@ public class GameController
         CurrentGame.GameGrid[pairToUse.First, pairToUse.Second] = CurrentGame.CurrentPlayer.Symbol;
         Console.WriteLine(CurrentGame.GameGrid);
         PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pairToUse);
-        Thread.Sleep(1000);
+        Thread.Sleep(1000);*/
     }
 
     private void PerformPlayerMove()
