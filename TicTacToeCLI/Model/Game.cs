@@ -60,7 +60,7 @@ public class Game
     /// <returns>Returns true, if all the positions in the <see cref="Grid"/> have been filled</returns>
     public bool GameIsDrawn()
     {
-        return GameGrid.IsFull();
+        return GameGrid.IsAllCellsFilled();
     }
 
     /// <summary>
