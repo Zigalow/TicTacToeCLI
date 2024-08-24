@@ -206,7 +206,7 @@ public class GameController
             do
             {
                 move = cpu.GetRandomPosition();
-            } while (!ValidMove(move));
+            } while (IsSpaceOccupied(move));
 
             return move;
         }
@@ -420,14 +420,14 @@ public class GameController
         return (new Player(shape1), gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2));
     }
 
-    private bool ValidMove(int in1, int in2)
+    private bool IsSpaceOccupied(int in1, int in2)
     {
         return CurrentGame.GameGrid.IsSpaceAvailable(in1, in2);
     }
 
-    private bool ValidMove(IntegerPair pair)
+    private bool IsSpaceOccupied(IntegerPair pair)
     {
-        return CurrentGame.GameGrid.IsSpaceAvailable(pair.First, pair.Second);
+        return !CurrentGame.GameGrid.IsSpaceAvailable(pair.First, pair.Second);
     }
 
     private bool SkipShapeSelection()
