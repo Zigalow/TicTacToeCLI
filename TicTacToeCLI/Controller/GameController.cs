@@ -2,7 +2,7 @@ using System.Diagnostics;
 using TicTacToeCLI.Model;
 
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
-// Todo - Enhance UI experience in terms of text - especially when it comes to the rules or when mistyping
+// Todo - Enhance UI experience in terms of text - especially when it comes to the rules or when mistyping (Could prompt the user to type h, to display rules)
 // Todo - Add readme
 // Todo - Auto fills the spots when it's a tie (maybe)
 namespace TicTacToeCLI.Controller;
