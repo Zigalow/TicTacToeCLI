@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using TicTacToeCLI.Model;
 
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
@@ -251,35 +250,75 @@ public class GameController
 
     private void PerformPlayerMove()
     {
-        // TODO - Maybe remove loop
+        DisplayRulesIfNeeded();
+
         while (true)
         {
-            if (!_hasShownRules)
-            {
-                if (CurrentGame.TurnCounter is 1 or 2)
-                {
-                    if (CurrentGame.TurnCounter is 1)
-                    {
-                        DisplayRules();
-                        DefaultCurrentPlayerTurnMessage();
-                    }
-                    else
-                    {
-                        DefaultCurrentPlayerTurnMessage();
-                        DisplayRules();
-                    }
+            DefaultCurrentPlayerTurnMessage();
 
-                    _hasShownRules = true;
-                }
-            }
-            else
+            IntegerPair? move = GetValidPlayerMove();
+
+            if (move == null)
             {
+                continue;
+            }
+
+            ApplyMove(move.Value);
+            return;
+        }
+
+        void DisplayRulesIfNeeded()
+        {
+            if (_hasShownRules)
+            {
+                return;
+            }
+
+            if (CurrentGame.TurnCounter == 1)
+            {
+                DisplayRules();
                 DefaultCurrentPlayerTurnMessage();
             }
+            else if (CurrentGame.TurnCounter == 2)
+            {
+                DefaultCurrentPlayerTurnMessage();
+                DisplayRules();
+            }
 
-            var input = ReadInput();
+            _hasShownRules = true;
+        }
+
+        IntegerPair? GetValidPlayerMove()
+        {
+            string input = ReadInput();
             Console.In.Close();
 
+            IntegerPair? move = ParseMove(input);
+            if (move == null)
+            {
+                DefaultWrongFormatMessage("The move was written in an incorrect format.");
+                return null;
+            }
+
+            if (!IsWithinGrid(move.Value))
+            {
+                DefaultWrongFormatMessage("You are trying to place a symbol outside of the grid.");
+                return null;
+            }
+
+            if (IsSpaceOccupied(move.Value))
+            {
+                SlowPrint("The space is already being occupied.");
+                SlowPrint("Choose another space.");
+                Console.WriteLine(CurrentGame.GameGrid);
+                return null;
+            }
+
+            return move;
+        }
+
+        IntegerPair? ParseMove(string input)
+        {
             string[] splitByComma = input.Split(",");
             string[] splitByDot = input.Split(".");
 
@@ -294,27 +333,32 @@ public class GameController
                     int in1 = Convert.ToInt32(parts[0]) - 1;
                     int in2 = Convert.ToInt32(parts[1]) - 1;
                     pair = new IntegerPair(in1, in2);
+
+                    // TODO - If a negative number is typed, it should be parsed correctly,
+                    // and let other methods (IsWithinGrid) handle whether or not it is within a grid
                     if (pair.First < 0 || 0 > pair.Second)
                     {
                         throw new Exception();
                     }
                 }
-                else if (char.IsNumber(input.ToCharArray()[0]))
-                {
-                    GridPosition number =
-                        new GridPosition(Convert.ToInt32(input) - 1);
-                    pair = (IntegerPair)number;
-                }
                 else
                 {
-                    throw new Exception();
+                    if (!char.IsNumber(input.ToCharArray()[0]))
+                    {
+                        throw new Exception();
+                    }
+
+                    GridPosition number = new GridPosition(Convert.ToInt32(input) - 1);
+                    return (IntegerPair)number;
                 }
             }
             catch
             {
-                DefaultWrongFormatMessage("The move was written in an incorrect format.");
-                continue;
+                return null;
             }
+
+            return pair;
+        }
 
         bool IsWithinGrid(IntegerPair move)
         {
@@ -322,21 +366,13 @@ public class GameController
                      move.Second is >= Game.GameGridSideLength or < 0);
         }
 
-            if (!ValidMove(pair))
-            {
-                SlowPrint("The space is already being occupied.");
-                SlowPrint("Choose another space.");
-                Console.WriteLine(CurrentGame.GameGrid);
-            }
-            else
-            {
-                CurrentGame.CurrentPlayer.AddSymbolPosition(pair);
-                CurrentGame.GameGrid[pair] = CurrentGame.CurrentPlayer.Symbol;
-                Console.WriteLine(CurrentGame.GameGrid);
-                PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pair);
-                Thread.Sleep(1000);
-                return;
-            }
+        void ApplyMove(IntegerPair move)
+        {
+            CurrentGame.CurrentPlayer.AddSymbolPosition(move);
+            CurrentGame.GameGrid[move] = CurrentGame.CurrentPlayer.Symbol;
+            Console.WriteLine(CurrentGame.GameGrid);
+            PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move);
+            Thread.Sleep(1000);
         }
     }
 
