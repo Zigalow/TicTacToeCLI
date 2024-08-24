@@ -316,11 +316,11 @@ public class GameController
                 continue;
             }
 
-            if (pair.First >= Game.GameGridSideLength || pair.Second >= Game.GameGridSideLength)
-            {
-                DefaultWrongFormatMessage("You are trying to place a symbol outside of the grid.");
-                continue;
-            }
+        bool IsWithinGrid(IntegerPair move)
+        {
+            return !(move.First is >= Game.GameGridSideLength or < 0 ||
+                     move.Second is >= Game.GameGridSideLength or < 0);
+        }
 
             if (!ValidMove(pair))
             {
