@@ -334,15 +334,17 @@ public class GameController
                     int in2 = Convert.ToInt32(parts[1]) - 1;
                     pair = new IntegerPair(in1, in2);
 
-                    // TODO - If a negative number is typed, it should be parsed correctly,
                     // and let other methods (IsWithinGrid) handle whether or not it is within a grid
-                    if (pair.First < 0 || 0 > pair.Second)
+                    /*if (pair.First < 0 || 0 > pair.Second)
                     {
                         throw new Exception();
-                    }
+                    }*/
                 }
                 else
                 {
+                    // Todo - Should be able to write negative numbers,
+                    // The check for IsNumber only takes the first character into consideration
+                    
                     if (!char.IsNumber(input.ToCharArray()[0]))
                     {
                         throw new Exception();
