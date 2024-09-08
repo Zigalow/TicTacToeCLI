@@ -2,7 +2,6 @@ using TicTacToeCLI.Model;
 using static System.Int32;
 
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
-// Todo - Enhance UI experience in terms of text - especially when it comes to the rules or when mistyping (Could prompt the user to type h, to display rules)
 // Todo - Add readme
 // Todo - Auto fills the spots when it's a tie (maybe)
 namespace TicTacToeCLI.Controller;
@@ -303,8 +302,6 @@ public class GameController
 
     private void PerformPlayerMove()
     {
-        DisplayRulesIfNeeded();
-
         while (true)
         {
             DefaultCurrentPlayerTurnMessage();
@@ -320,31 +317,17 @@ public class GameController
             return;
         }
 
-        void DisplayRulesIfNeeded()
-        {
-            if (_hasShownRules)
-            {
-                return;
-            }
-
-            if (CurrentGame.TurnCounter == 1)
-            {
-                DisplayRules();
-                DefaultCurrentPlayerTurnMessage();
-            }
-            else if (CurrentGame.TurnCounter == 2)
-            {
-                DefaultCurrentPlayerTurnMessage();
-                DisplayRules();
-            }
-
-            _hasShownRules = true;
-        }
-
         IntegerPair? GetValidPlayerMove()
         {
             string input = ReadInput();
             Console.In.Close();
+
+            if (input.Equals("h"))
+            {
+                DisplayControls();
+                DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
+                return null;
+            }
 
             IntegerPair? move = ParseMove(input);
             if (move == null)
