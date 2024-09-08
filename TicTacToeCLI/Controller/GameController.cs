@@ -91,6 +91,15 @@ public class GameController
             PerformPlayerMove();
         }
     }
+    // Todo - make generic method when 
+    /*private ConsoleKey pro(params ConsoleKey[] options)
+    {
+        ConsoleKey choice;
+        do
+        {
+            choice = ReadInputKey();
+        } while (options)
+    }*/
 
     private (bool exitGame, bool playAgainWithSameConfigs) GameFinishedChoiceDialog()
     {
