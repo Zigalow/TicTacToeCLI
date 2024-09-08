@@ -9,6 +9,31 @@ namespace TicTacToeCLI.Model;
 /// </remarks>
 public readonly struct GridPosition
 {
+    /// <summary>
+    /// Represents the position of top-left corner of the game grid.
+    /// </summary>
+    internal static readonly IntegerPair TopLeft = new(0, 0);
+
+    /// <summary>
+    /// Represents the position of top-right corner of the game grid.
+    /// </summary>
+    internal static readonly IntegerPair TopRight = new(Game.GameGridSideLength - 1, 0);
+
+    /// <summary>
+    /// Represents the position of the middle cell of the game grid.
+    /// </summary>
+    internal static readonly IntegerPair Middle = new(Game.GameGridSideLength / 2, Game.GameGridSideLength / 2);
+
+    /// <summary>
+    /// Represents the position of the bottom-left corner of the game grid.
+    /// </summary>
+    internal static readonly IntegerPair BottomLeft = new(0, Game.GameGridSideLength - 1);
+
+    /// <summary>
+    /// Represents the position of the bottom-right corner of the game grid.
+    /// </summary>
+    internal static readonly IntegerPair BottomRight = new(Game.GameGridSideLength - 1, Game.GameGridSideLength - 1);
+
     private const int GridSize = Game.GameGridSideLength;
 
     /// <summary>
