@@ -518,6 +518,7 @@ public class GameController
         Console.WriteLine();
         Console.WriteLine(CurrentGame.GameGrid);
         SlowPrint($"{CurrentGame.CurrentPlayer} will start the turn...\n");
+        LastPlacedSymbolText = $"{CurrentGame.CurrentPlayer} will start the turn...";
         // SlowPrint("...", delayInMicroseconds: 333000, false);
         // SlowPrint("\n");
         Thread.Sleep(2000);
