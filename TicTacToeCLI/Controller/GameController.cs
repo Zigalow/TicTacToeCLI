@@ -30,7 +30,7 @@ public class GameController
             }
 
             RunGame();
-            (sameConfig, exit) = GameFinishedChoiceDialog();
+            (exit, sameConfig) = GameFinishedChoiceDialog();
         } while (!exit);
     }
 
