@@ -1,4 +1,5 @@
 using TicTacToeCLI.Model;
+using static System.Int32;
 
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
 // Todo - Enhance UI experience in terms of text - especially when it comes to the rules or when mistyping (Could prompt the user to type h, to display rules)
@@ -379,24 +380,15 @@ public class GameController
                     int in1 = Convert.ToInt32(parts[0]) - 1;
                     int in2 = Convert.ToInt32(parts[1]) - 1;
                     pair = new IntegerPair(in1, in2);
-
-                    // and let other methods (IsWithinGrid) handle whether or not it is within a grid
-                    /*if (pair.First < 0 || 0 > pair.Second)
-                    {
-                        throw new Exception();
-                    }*/
                 }
                 else
                 {
-                    // Todo - Should be able to write negative numbers,
-                    // The check for IsNumber only takes the first character into consideration
-                    
-                    if (!char.IsNumber(input.ToCharArray()[0]))
+                    if (!TryParse(input, out int parsedNumber))
                     {
-                        throw new Exception();
+                        return null;
                     }
 
-                    GridPosition number = new GridPosition(Convert.ToInt32(input) - 1);
+                    GridPosition number = new GridPosition(parsedNumber - 1);
                     return (IntegerPair)number;
                 }
             }
