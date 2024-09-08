@@ -147,8 +147,8 @@ public class GameController
 
     private void DefaultCurrentPlayerTurnMessage()
     {
-        Console.WriteLine();
-        SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn:\n");
+        Console.WriteLine("\n");
+        SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn (Type h to display controls):\n");
     }
 
     private void DisplayControls()
