@@ -267,37 +267,6 @@ public class GameController
             Console.WriteLine();
             CurrentGame.GameGrid[position.First, position.Second] = cpu.Symbol;
         }
-
-        void DisplayMoveResult(IntegerPair position)
-        {
-            Console.WriteLine(CurrentGame.GameGrid);
-            PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, position);
-            Thread.Sleep(1000);
-        }
-
-        /*
-        IntegerPair pairToUse;
-
-        bool getRandomMove = !cpuGame.CpuCanWin(out var returnedPair) && !cpuGame.CpuCanLose(out returnedPair);
-
-        if (getRandomMove)
-        {
-            do
-            {
-                pairToUse = cpu.GetRandomPosition();
-            } while (!ValidMove(pairToUse));
-        }
-        else
-        {
-            Debug.Assert(returnedPair != null, nameof(returnedPair) + " != null");
-            pairToUse = returnedPair.Value;
-        }
-
-        cpu.AddSymbolPosition(pairToUse);
-        CurrentGame.GameGrid[pairToUse.First, pairToUse.Second] = CurrentGame.CurrentPlayer.Symbol;
-        Console.WriteLine(CurrentGame.GameGrid);
-        PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pairToUse);
-        Thread.Sleep(1000);*/
     }
 
     private void PerformPlayerMove()
