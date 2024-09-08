@@ -8,8 +8,8 @@ namespace TicTacToeCLI.Controller;
 
 public class GameController
 {
-    private bool _hasShownRules = false;
-    private const int DelayInMicroseconds = 15000;
+    // private bool _hasShownRules = false;
+    private const int TextDelayInMicroseconds = 0 /*15000*/;
     private const int SleepDelayInMicroseconds = 700;
     private Game CurrentGame { get; set; }
     private GameMode _gameMode;
@@ -424,6 +424,22 @@ public class GameController
             PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move);
             Thread.Sleep(1000);
         }
+    }
+
+    private void DisplayMoveResult(IntegerPair? move = null, string? lastMoveResultText = null)
+    {
+        Console.Write(CurrentGame.GameGrid);
+
+        if (move.HasValue)
+        {
+            LastPlacedSymbolText = PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move.Value);
+        }
+        else if (lastMoveResultText != null)
+        {
+            PlayerPlacedSymbolMessage(lastMoveResultText);
+        }
+
+        Thread.Sleep(1000);
     }
 
     private void WelcomeMessage()
