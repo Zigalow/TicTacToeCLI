@@ -13,6 +13,7 @@ public class GameController
     private const int SleepDelayInMicroseconds = 700;
     private Game CurrentGame { get; set; }
     private GameMode _gameMode;
+    private string LastPlacedSymbolText { get; set; } = "";
 
     public void Start()
     {
