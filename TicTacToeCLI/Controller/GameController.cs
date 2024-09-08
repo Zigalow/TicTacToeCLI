@@ -211,9 +211,15 @@ public class GameController
         } while (input != ConsoleKey.Enter);
     }
 
-    private void PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
+    private string PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
     {
-        SlowPrint($"{player} placed a symbol on {(GridPosition)pair} / {pair}");
+        return PlayerPlacedSymbolMessage($"{player} placed a symbol on {(GridPosition)pair} / {pair}");
+    }
+
+    private string PlayerPlacedSymbolMessage(string text)
+    {
+        SlowPrint(text);
+        return text;
     }
 
     private void DefaultWrongFormatMessage(string text)
