@@ -148,17 +148,64 @@ public class GameController
         SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn:\n");
     }
 
-    private void DisplayRules()
+    private void DisplayControls()
     {
+        const int sleepTime = 2500;
+        const int sleepTimeForPositions = 1200;
+        const int delayTime = 25000;
+
+        Console.WriteLine("--------------------------------------");
         SlowPrint(
-            "Specify your move, in one of the two formats below and press enter:");
-        Thread.Sleep(500);
-        Console.WriteLine(
-            $"\"x.y\" or \"x,y\": x is the x-axis, and y is the y-axis. Top left corner is 1.1, whereas bottom left corner would be \"1.{Game.GameGridSideLength}\".");
-        Console.WriteLine(
-            $"\"z\": z is the allocated space in the grid. Top left corner would be 1, whereas bottom left corner would be {Game.GameGridSideLength * Game.GameGridSideLength - (Game.GameGridSideLength - 1)}.");
-        // SlowPrint("...", 500000);
-        Thread.Sleep(1000);
+            "There are two ways to specify a move.", delayTime, noSleep: true);
+        Console.WriteLine("--------------------------------------");
+
+        Thread.Sleep(sleepTime);
+        SlowPrint($"The first way is to type a single number - e.g: 1", delayTime);
+        Thread.Sleep(sleepTime);
+        SlowPrint(
+            "To help you understand, the number corresponding to the four corners and middle position will be listed:",
+            delayTime);
+        Thread.Sleep(sleepTime);
+        Console.WriteLine($"--------------------------------");
+        SlowPrint($"Top left corner would be {(GridPosition)GridPosition.TopLeft}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Top right corner would be {(GridPosition)GridPosition.TopRight}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Middle position would be {(GridPosition)GridPosition.Middle}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom left corner would be {(GridPosition)GridPosition.BottomLeft}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom right corner would be {(GridPosition)GridPosition.BottomRight}", delayTime, noSleep: true);
+        Console.WriteLine($"--------------------------------");
+
+        Thread.Sleep(sleepTime);
+
+        SlowPrint("The second way is to type a coordinate - e.g: 1,1 / 1.1", delayTime);
+        Thread.Sleep(sleepTime);
+        SlowPrint(
+            "The coordinate corresponding to the four corners and middle position will be listed:", delayTime);
+        Thread.Sleep(sleepTime);
+        Console.WriteLine("--------------------------------");
+        SlowPrint($"Top left corner would be {GridPosition.TopLeft}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Top right corner would be {GridPosition.TopRight}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Middle position would be {GridPosition.Middle}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom left corner would be {GridPosition.BottomLeft}", delayTime,
+            sleepDelayInMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom right corner would be {GridPosition.BottomRight}", delayTime, noSleep: true);
+        Console.WriteLine("--------------------------------");
+        SlowPrint("When a move has been specified, press enter to perform the move.\n");
+
+        SlowPrint("Press enter when you're ready to return to the game...");
+        Console.WriteLine();
+
+        ConsoleKey input;
+        do
+        {
+            input = ReadInputKey();
+        } while (input != ConsoleKey.Enter);
     }
 
     private void PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
