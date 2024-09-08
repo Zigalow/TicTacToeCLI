@@ -221,8 +221,7 @@ public class GameController
         Thread.Sleep(500);
         SlowPrint("Try again...");
         Thread.Sleep(1500);
-        Console.WriteLine(CurrentGame.GameGrid);
-        DisplayRules();
+        DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
     }
 
     private void PerformCpuMove()
@@ -231,9 +230,6 @@ public class GameController
         {
             throw new InvalidOperationException("PerformCpuMove called with invalid game or player type.");
         }
-
-        /*var cpu = CurrentGame.CurrentPlayer as Cpu;
-        var cpuGame = CurrentGame as CpuGame;*/
 
         IntegerPair movePosition = GetOptimalMove() ?? GetRandomValidMove();
 
@@ -262,6 +258,7 @@ public class GameController
         void ApplyMove(IntegerPair position)
         {
             cpu.AddSymbolPosition(position);
+            Console.WriteLine();
             CurrentGame.GameGrid[position.First, position.Second] = cpu.Symbol;
         }
 
@@ -421,9 +418,7 @@ public class GameController
         {
             CurrentGame.CurrentPlayer.AddSymbolPosition(move);
             CurrentGame.GameGrid[move] = CurrentGame.CurrentPlayer.Symbol;
-            Console.WriteLine(CurrentGame.GameGrid);
-            PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move);
-            Thread.Sleep(1000);
+            DisplayMoveResult(move);
         }
     }
 
