@@ -10,6 +10,7 @@ public class GameController
 {
     private bool _hasShownRules = false;
     private const int DelayInMicroseconds = 15000;
+    private const int SleepDelayInMicroseconds = 700;
     private Game CurrentGame { get; set; }
     private GameMode _gameMode;
 
@@ -530,20 +531,21 @@ public class GameController
         return selectShapeButton == ConsoleKey.D1;
     }
 
-    private void SlowPrint(String text, int delayInMicroseconds = DelayInMicroseconds, bool newLine = true)
+    private void SlowPrint(string text, int textDelayInMicroseconds = TextDelayInMicroseconds,
+        int sleepDelayInMicroseconds = SleepDelayInMicroseconds, bool noSleep = false)
     {
         foreach (char c in text)
         {
             Console.Write(c);
-            Thread.Sleep(TimeSpan.FromMicroseconds(delayInMicroseconds));
+            Thread.Sleep(TimeSpan.FromMicroseconds(textDelayInMicroseconds));
         }
 
-        if (newLine)
+        Console.WriteLine();
+
+        if (!noSleep)
         {
-            Console.WriteLine();
+            Thread.Sleep(sleepDelayInMicroseconds);
         }
-
-        Thread.Sleep(700);
     }
 
     private void CommencingGameMessage()
