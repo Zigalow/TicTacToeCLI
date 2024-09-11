@@ -290,8 +290,12 @@ public class GameController
 
         IntegerPair? GetValidPlayerMove()
         {
-            string input = ReadInput();
-            Console.In.Close();
+            string? input = ReadInput();
+
+            if (input == null)
+            {
+                return InvalidMove("An unexpected action was performed.");
+            }
 
             if (input.Equals("h"))
             {
@@ -303,25 +307,26 @@ public class GameController
             IntegerPair? move = ParseMove(input);
             if (move == null)
             {
-                DefaultWrongFormatMessage("The move was written in an incorrect format.");
-                return null;
+                return InvalidMove("The move was written in an incorrect format.");
             }
 
             if (!IsWithinGrid(move.Value))
             {
-                DefaultWrongFormatMessage("You are trying to place a symbol outside of the grid.");
-                return null;
+                InvalidMove("You are trying to place a symbol outside of the grid.");
             }
 
             if (IsSpaceOccupied(move.Value))
             {
-                SlowPrint("The space is already being occupied.");
-                SlowPrint("Choose another space.");
-                Console.WriteLine(CurrentGame.GameGrid);
-                return null;
+                return InvalidMove("The space is already being occupied.");
             }
 
             return move;
+
+            IntegerPair? InvalidMove(string message)
+            {
+                DefaultWrongFormatMessage(message);
+                return null;
+            }
         }
 
         IntegerPair? ParseMove(string input)
