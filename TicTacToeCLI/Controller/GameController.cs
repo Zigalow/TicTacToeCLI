@@ -4,6 +4,7 @@ using static System.Int32;
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
 // Todo - Add readme
 // Todo - Auto fills the spots when it's a tie (maybe)
+// Todo - Setup configurations in github, so people can't accept their own pull request
 namespace TicTacToeCLI.Controller;
 
 public class GameController
