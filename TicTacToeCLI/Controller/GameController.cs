@@ -91,21 +91,28 @@ public class GameController
             PerformPlayerMove();
         }
     }
-    // Todo - make generic method when 
-    /*private ConsoleKey pro(params ConsoleKey[] options)
+
+    private ConsoleKey ReadValidConsoleKey(params ConsoleKey[] validKeys)
     {
+        if (validKeys.Length == 0)
+        {
+            throw new ArgumentException("At least one valid key must be provided.");
+        }
+
         ConsoleKey choice;
         do
         {
             choice = ReadInputKey();
-        } while (options)
-    }*/
+        } while (!validKeys.Contains(choice));
+
+        return choice;
+    }
 
     private (bool exitGame, bool playAgainWithSameConfigs) GameFinishedChoiceDialog()
     {
         SlowPrint("\nWould you like to play again?\n");
         DisplayOptions();
-        ConsoleKey userChoice = GetUserChoice();
+        ConsoleKey userChoice = ReadValidConsoleKey(ConsoleKey.D1, ConsoleKey.D2, ConsoleKey.D3);
 
         return ProcessChoice(userChoice);
 
@@ -114,17 +121,6 @@ public class GameController
             Console.WriteLine("Play again with same configurations - (Press 1)");
             Console.WriteLine("Play again with different configurations - (Press 2)");
             Console.WriteLine("Exit game - (Press 3)\n");
-        }
-
-        ConsoleKey GetUserChoice()
-        {
-            ConsoleKey choice;
-            do
-            {
-                choice = ReadInputKey();
-            } while (choice != ConsoleKey.D1 && choice != ConsoleKey.D2 && choice != ConsoleKey.D3);
-
-            return choice;
         }
 
         (bool exitGame, bool playAgainWithSameConfigs) ProcessChoice(ConsoleKey choice)
@@ -212,11 +208,7 @@ public class GameController
         SlowPrint("Press enter when you're ready to return to the game...");
         Console.WriteLine();
 
-        ConsoleKey input;
-        do
-        {
-            input = ReadInputKey();
-        } while (input != ConsoleKey.Enter);
+        ReadValidConsoleKey(ConsoleKey.Enter);
     }
 
     private string PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
@@ -416,11 +408,7 @@ public class GameController
         Console.WriteLine("Alone versus a CPU - (Press 1)");
         Console.WriteLine("Versus another local player - (Press 2)\n");
 
-        ConsoleKey chosenKey;
-        do
-        {
-            chosenKey = ReadInputKey();
-        } while (chosenKey != ConsoleKey.D1 && chosenKey != ConsoleKey.D2);
+        ConsoleKey chosenKey = ReadValidConsoleKey(ConsoleKey.D1, ConsoleKey.D2);
 
         GameMode chosenGameMode = chosenKey == ConsoleKey.D1 ? GameMode.PlayerVersusCpu : GameMode.PlayerVersusPlayer;
 
@@ -493,11 +481,7 @@ public class GameController
 
         Console.WriteLine("No - (Press 1)");
         Console.WriteLine("Yes - (Press 2)\n");
-        ConsoleKey selectShapeButton;
-        do
-        {
-            selectShapeButton = ReadInputKey();
-        } while (selectShapeButton != ConsoleKey.D1 && selectShapeButton != ConsoleKey.D2);
+        ConsoleKey selectShapeButton = ReadValidConsoleKey(ConsoleKey.D1, ConsoleKey.D2);
 
         return selectShapeButton == ConsoleKey.D1;
     }
@@ -523,13 +507,10 @@ public class GameController
     {
         SlowPrint("The game will now commence...");
         Thread.Sleep(1000);
-        // CurrentGame.ChooseRandomPlayer();
         Console.WriteLine();
         Console.WriteLine(CurrentGame.GameGrid);
         SlowPrint($"{CurrentGame.CurrentPlayer} will start the turn...\n");
         LastPlacedSymbolText = $"{CurrentGame.CurrentPlayer} will start the turn...";
-        // SlowPrint("...", delayInMicroseconds: 333000, false);
-        // SlowPrint("\n");
         Thread.Sleep(2000);
     }
 
