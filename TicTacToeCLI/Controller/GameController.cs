@@ -12,8 +12,7 @@ public class GameController
     // private bool _hasShownRules = false;
     private const int TextDelayInMicroseconds = 0 /*15000*/;
     private const int SleepDelayInMicroseconds = 700;
-    private Game CurrentGame { get; set; }
-    private GameMode _gameMode;
+    private Game CurrentGame { get; set; } 
     private string LastPlacedSymbolText { get; set; } = "";
 
     public void Start()
@@ -36,18 +35,18 @@ public class GameController
 
     private void Setup()
     {
-        _gameMode = SelectGameMode();
+        GameMode chosenGameMode = SelectGameMode();
         if (SkipShapeSelection())
         {
-            CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
+            CurrentGame = chosenGameMode == GameMode.PlayerVersusPlayer
                 ? new Game(new Player('X'), new Player('O'))
                 : new CpuGame(new Player('X'), new Cpu('O'));
             return;
         }
 
-        (Player player1, Player player2) = SelectShapes(_gameMode);
+        (Player player1, Player player2) = SelectShapes(chosenGameMode);
 
-        CurrentGame = _gameMode switch
+        CurrentGame = chosenGameMode switch
         {
             GameMode.PlayerVersusPlayer => new Game(player1, player2),
             GameMode.PlayerVersusCpu when player2 is Cpu cpu => new CpuGame(player1, cpu),
