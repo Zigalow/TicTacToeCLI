@@ -15,8 +15,9 @@ public class Game
 
     /// <summary>
     /// The turn counter of the game. Starts at 1 and increments by 1 after each turn
+    /// It's currently not being used for anything relevant
     /// </summary>
-    public int TurnCounter { get; private set; } = 1;
+    private int TurnCounter { get; set; } = 1;
 
     /// <summary>
     /// The <see cref="Grid"/> object that represents the game board
