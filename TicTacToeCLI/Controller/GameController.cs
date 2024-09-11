@@ -374,7 +374,7 @@ public class GameController
         }
     }
 
-    private void DisplayMoveResult(IntegerPair? move = null, string? lastMoveResultText = null)
+    private void DisplayMoveResult(IntegerPair? move, string? lastMoveResultText = null)
     {
         Console.Write(CurrentGame.GameGrid);
 
@@ -388,6 +388,11 @@ public class GameController
         }
 
         Thread.Sleep(1000);
+    }
+
+    private void DisplayMoveResult(string lastMoveResultText)
+    {
+        DisplayMoveResult(move: null, lastMoveResultText: lastMoveResultText);
     }
 
     private void WelcomeMessage()
