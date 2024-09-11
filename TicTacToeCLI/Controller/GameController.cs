@@ -422,23 +422,6 @@ public class GameController
 
     private (Player player1, Player player2) SelectShapes(GameMode gameMode)
     {
-        char GetShapeInput(string prompt, char? excludeShape = null)
-        {
-            SlowPrint(prompt);
-            SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
-
-            ConsoleKeyInfo keyPressed;
-            char shape;
-            do
-            {
-                keyPressed = ReadInputKeyInfo();
-                shape = char.ToUpper(keyPressed.KeyChar);
-            } while (!char.IsLetter(shape) || shape == excludeShape);
-
-            Console.WriteLine();
-            return shape;
-        }
-
         string player1Prompt = gameMode == GameMode.PlayerVersusPlayer
             ? "Which shape would you like to be, Player 1?"
             : "Which shape would you like for yourself to be?";
@@ -464,6 +447,22 @@ public class GameController
         Console.WriteLine();
 
         return (new Player(shape1), gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2));
+
+        char GetShapeInput(string prompt, char? excludeShape = null)
+        {
+            SlowPrint(prompt);
+            SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
+
+            char shape;
+            do
+            {
+                ConsoleKeyInfo keyPressed = ReadInputKeyInfo();
+                shape = char.ToUpper(keyPressed.KeyChar);
+            } while (!char.IsLetter(shape) || shape == excludeShape);
+
+            Console.WriteLine();
+            return shape;
+        }
     }
 
     private bool IsSpaceOccupied(int in1, int in2)
