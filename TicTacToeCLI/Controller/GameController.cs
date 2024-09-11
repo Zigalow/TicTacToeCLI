@@ -12,7 +12,7 @@ public class GameController
     // private bool _hasShownRules = false;
     private const int TextDelayInMicroseconds = 0 /*15000*/;
     private const int SleepDelayInMicroseconds = 700;
-    private Game CurrentGame { get; set; } 
+    private Game CurrentGame { get; set; } = null!;
     private string LastPlacedSymbolText { get; set; } = "";
 
     public void Start()
@@ -52,26 +52,6 @@ public class GameController
             GameMode.PlayerVersusCpu when player2 is Cpu cpu => new CpuGame(player1, cpu),
             _ => throw new InvalidOperationException("Invalid game mode or player configuration")
         };
-    }
-
-    private void ExplainRules()
-    {
-        SlowPrint("Explaining the rules:");
-        Grid ruleGrid = new Grid(3)
-        {
-            [0, 0] = 'X',
-            [0, 1] = 'A',
-            [1, 0] = 'B',
-        };
-        Console.WriteLine(ruleGrid);
-        Thread.Sleep(1000);
-        SlowPrint(
-            "Placing a symbol needs to be written in the format of \"x,y\" or \"x.y\", where x is the x-axis, and y is the y-axis." +
-            "\nFor example, the top left corner, X, is 1,1, whereas the space below that, A, would be 1,2. The space to right of the top left corner, B, is 2,1." +
-            "\nSpecify where you want to place your symbol and press enter.", 50000);
-
-        Console.WriteLine("Press a button start the game...");
-        Console.ReadLine();
     }
 
     private void NextTurn()
@@ -167,13 +147,13 @@ public class GameController
         Console.WriteLine("--------------------------------------");
 
         Thread.Sleep(sleepTime);
-        SlowPrint($"The first way is to type a single number - e.g: 1", delayTime);
+        SlowPrint("The first way is to type a single number - e.g: 1", delayTime);
         Thread.Sleep(sleepTime);
         SlowPrint(
             "To help you understand, the number corresponding to the four corners and middle position will be listed:",
             delayTime);
         Thread.Sleep(sleepTime);
-        Console.WriteLine($"--------------------------------");
+        Console.WriteLine("--------------------------------");
         SlowPrint($"Top left corner would be {(GridPosition)GridPosition.TopLeft}", delayTime,
             sleepDelayInMicroseconds: sleepTimeForPositions);
         SlowPrint($"Top right corner would be {(GridPosition)GridPosition.TopRight}", delayTime,
@@ -183,7 +163,7 @@ public class GameController
         SlowPrint($"Bottom left corner would be {(GridPosition)GridPosition.BottomLeft}", delayTime,
             sleepDelayInMicroseconds: sleepTimeForPositions);
         SlowPrint($"Bottom right corner would be {(GridPosition)GridPosition.BottomRight}", delayTime, noSleep: true);
-        Console.WriteLine($"--------------------------------");
+        Console.WriteLine("--------------------------------");
 
         Thread.Sleep(sleepTime);
 
@@ -472,11 +452,6 @@ public class GameController
             Console.WriteLine();
             return shape;
         }
-    }
-
-    private bool IsSpaceOccupied(int in1, int in2)
-    {
-        return CurrentGame.GameGrid.IsSpaceAvailable(in1, in2);
     }
 
     private bool IsSpaceOccupied(IntegerPair pair)
