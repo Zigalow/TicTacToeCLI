@@ -3,18 +3,18 @@ using System.ComponentModel;
 namespace TicTacToeCLI.Model.GameOptions;
 
 /// <summary>
-/// Mode of the game being played
+/// Represents the available game modes for Tic-Tac-Toe.
 /// </summary>
 public enum GameModeOption
 {
     /// <summary>
-    /// Game mode of player playing against the CPU 
+    /// Player versus CPU game mode.
     /// </summary>
     [Description("Player versus a CPU")]
     PlayerVersusCpu,
 
     /// <summary>
-    /// Game mode of player playing against another local player
+    /// Player versus another local player game mode.
     /// </summary>
     [Description("Player versus another local player")]
     PlayerVersusPlayer,

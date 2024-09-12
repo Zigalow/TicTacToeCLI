@@ -1,7 +1,16 @@
 namespace TicTacToeCLI.Model.GameOptions;
 
+/// <summary>
+/// Provides mapping between game options and corresponding console keys.
+/// </summary>
 public static class GameOptionKeyMapper
 {
+    /// <summary>
+    /// Maps a GameModeOption to its corresponding ConsoleKey.
+    /// </summary>
+    /// <param name="option">The GameModeOption to map.</param>
+    /// <returns>The corresponding ConsoleKey.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid GameModeOption is provided.</exception>
     public static ConsoleKey GameModeToConsoleKey(GameModeOption option)
     {
         return option switch
@@ -12,6 +21,12 @@ public static class GameOptionKeyMapper
         };
     }
 
+    /// <summary>
+    /// Maps a PlayAgainOption to its corresponding ConsoleKey.
+    /// </summary>
+    /// <param name="option">The PlayAgainOption to map.</param>
+    /// <returns>The corresponding ConsoleKey.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid PlayAgainOption is provided.</exception>
     public static ConsoleKey PlayAgainOptionToConsoleKey(PlayAgainOption option)
     {
         return option switch
@@ -23,6 +38,12 @@ public static class GameOptionKeyMapper
         };
     }
 
+    /// <summary>
+    /// Maps a SelectShapesOption to its corresponding ConsoleKey.
+    /// </summary>
+    /// <param name="option">The SelectShapesOption to map.</param>
+    /// <returns>The corresponding ConsoleKey.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid SelectShapesOption is provided.</exception>
     public static ConsoleKey SelectShapeOptionToConsoleKey(SelectShapesOption option)
     {
         return option switch
