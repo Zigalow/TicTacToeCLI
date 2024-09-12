@@ -48,8 +48,8 @@ public static class GameOptionKeyMapper
     {
         return option switch
         {
-            SelectShapesOption.DenySelectShape => ConsoleKey.D1,
-            SelectShapesOption.AcceptSelectShape => ConsoleKey.D2,
+            SelectShapesOption.UseDefaultShapes => ConsoleKey.D1,
+            SelectShapesOption.SelectCustomShapes => ConsoleKey.D2,
             _ => throw new ArgumentOutOfRangeException(nameof(option), option, null)
         };
     }

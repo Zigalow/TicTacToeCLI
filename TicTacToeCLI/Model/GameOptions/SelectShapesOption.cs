@@ -11,11 +11,11 @@ public enum SelectShapesOption
     /// Represents options for selecting shapes in the Tic-Tac-Toe game.
     /// </summary>
     [Description("Don't select shapes and play with default shapes")]
-    DenySelectShape,
+    UseDefaultShapes,
 
     /// <summary>
     /// Allow players to select custom shapes.
     /// </summary>
     [Description("Select which shapes to play with")]
-    AcceptSelectShape
+    SelectCustomShapes
 }
