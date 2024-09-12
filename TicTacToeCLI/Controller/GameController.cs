@@ -90,11 +90,33 @@ public class GameController
         return choice;
     }
 
+    private ConsoleKey ReadValidGameOption(params GameModeOption[] validOptions)
+    {
+        ConsoleKey[] validKeys = validOptions.Select(GameOptionKeyMapper.GameModeToConsoleKey).ToArray();
+        return ReadValidConsoleKey(validKeys);
+    }
+
+    private ConsoleKey ReadValidPlayAgainOption(params PlayAgainOption[] validOptions)
+    {
+        ConsoleKey[] validKeys = validOptions.Select(GameOptionKeyMapper.PlayAgainOptionToConsoleKey).ToArray();
+        return ReadValidConsoleKey(validKeys);
+    }
+
+    private ConsoleKey ReadValidSelectShapeOption(params SelectShapesOption[] validOptions)
+    {
+        ConsoleKey[] validKeys = validOptions.Select(GameOptionKeyMapper.SelectShapeOptionToConsoleKey).ToArray();
+        return ReadValidConsoleKey(validKeys);
+    }
+
     private (bool exitGame, bool playAgainWithSameConfigs) GameFinishedChoiceDialog()
     {
         SlowPrint("\nWould you like to play again?\n");
         DisplayOptions();
-        ConsoleKey userChoice = ReadValidConsoleKey(ConsoleKey.D1, ConsoleKey.D2, ConsoleKey.D3);
+        ConsoleKey userChoice = ReadValidPlayAgainOption(
+            PlayAgainOption.PlayAgainWithSameConfig,
+            PlayAgainOption.PlayAgainWithNewConfig,
+            PlayAgainOption.ExitGame
+        );
 
         return ProcessChoice(userChoice);
 
@@ -107,18 +129,26 @@ public class GameController
 
         (bool exitGame, bool playAgainWithSameConfigs) ProcessChoice(ConsoleKey choice)
         {
-            switch (choice)
+            GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithNewConfig);
+            GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.ExitGame);
+
+            if (choice == GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithSameConfig))
             {
-                case ConsoleKey.D1:
-                    CurrentGame.ResetGame();
-                    return (exitGame: false, playAgainWithSameConfigs: true);
-                case ConsoleKey.D2:
-                    return (exitGame: false, playAgainWithSameConfigs: false);
-                case ConsoleKey.D3:
-                    return (exitGame: true, playAgainWithSameConfigs: false);
-                default:
-                    throw new InvalidOperationException("Invalid choice");
+                CurrentGame.ResetGame();
+                return (exitGame: false, playAgainWithSameConfigs: true);
             }
+
+            if (choice == GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithNewConfig))
+            {
+                return (exitGame: false, playAgainWithSameConfigs: false);
+            }
+
+            if (choice == GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.ExitGame))
+            {
+                return (exitGame: true, playAgainWithSameConfigs: false);
+            }
+
+            throw new InvalidOperationException("Invalid choice");
         }
     }
 
@@ -400,9 +430,16 @@ public class GameController
         Console.WriteLine("Alone versus a CPU - (Press 1)");
         Console.WriteLine("Versus another local player - (Press 2)\n");
 
-        ConsoleKey chosenKey = ReadValidConsoleKey(ConsoleKey.D1, ConsoleKey.D2);
+        ConsoleKey chosenKey =
+            ReadValidGameOption(
+                GameModeOption.PlayerVersusCpu,
+                GameModeOption.PlayerVersusPlayer
+            );
 
-        GameMode chosenGameMode = chosenKey == ConsoleKey.D1 ? GameMode.PlayerVersusCpu : GameMode.PlayerVersusPlayer;
+        GameModeOption chosenGameModeOption =
+            chosenKey == GameOptionKeyMapper.GameModeToConsoleKey(GameModeOption.PlayerVersusCpu)
+                ? GameModeOption.PlayerVersusCpu
+                : GameModeOption.PlayerVersusPlayer;
 
         string modeDescription = chosenGameModeOption == GameModeOption.PlayerVersusCpu ? "a CPU" : "a local player";
 
@@ -468,9 +505,11 @@ public class GameController
 
         Console.WriteLine("No - (Press 1)");
         Console.WriteLine("Yes - (Press 2)\n");
-        ConsoleKey selectShapeButton = ReadValidConsoleKey(ConsoleKey.D1, ConsoleKey.D2);
+        ConsoleKey selectShapeButton =
+            ReadValidSelectShapeOption(SelectShapesOption.SelectCustomShapes, SelectShapesOption.UseDefaultShapes);
 
-        return selectShapeButton == ConsoleKey.D1;
+        return selectShapeButton ==
+               GameOptionKeyMapper.SelectShapeOptionToConsoleKey(SelectShapesOption.UseDefaultShapes);
     }
 
     private void SlowPrint(string text, int textDelayInMicroseconds = TextDelayInMicroseconds,
