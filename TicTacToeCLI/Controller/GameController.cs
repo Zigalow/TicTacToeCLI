@@ -1,8 +1,10 @@
 using TicTacToeCLI.Model;
+using TicTacToeCLI.Model.GameOptions;
 using static System.Int32;
 
 // Todo - XML-doc and code refactoring (code analysis) - [in progress]
 // Todo - Add readme
+
 // Todo - Auto fills the spots when it's a tie (maybe)
 // Todo - Setup configurations in github, so people can't accept their own pull request
 namespace TicTacToeCLI.Controller;
@@ -35,21 +37,21 @@ public class GameController
 
     private void Setup()
     {
-        GameMode chosenGameMode = SelectGameMode();
+        GameModeOption chosenGameModeOption = SelectGameMode();
         if (SkipShapeSelection())
         {
-            CurrentGame = chosenGameMode == GameMode.PlayerVersusPlayer
+            CurrentGame = chosenGameModeOption == GameModeOption.PlayerVersusPlayer
                 ? new Game(new Player('X'), new Player('O'))
                 : new CpuGame(new Player('X'), new Cpu('O'));
             return;
         }
 
-        (Player player1, Player player2) = SelectShapes(chosenGameMode);
+        (Player player1, Player player2) = SelectShapes(chosenGameModeOption);
 
-        CurrentGame = chosenGameMode switch
+        CurrentGame = chosenGameModeOption switch
         {
-            GameMode.PlayerVersusPlayer => new Game(player1, player2),
-            GameMode.PlayerVersusCpu when player2 is Cpu cpu => new CpuGame(player1, cpu),
+            GameModeOption.PlayerVersusPlayer => new Game(player1, player2),
+            GameModeOption.PlayerVersusCpu when player2 is Cpu cpu => new CpuGame(player1, cpu),
             _ => throw new InvalidOperationException("Invalid game mode or player configuration")
         };
     }
@@ -391,7 +393,7 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-    private GameMode SelectGameMode()
+    private GameModeOption SelectGameMode()
     {
         SlowPrint("How would you like to play?");
 
@@ -402,40 +404,41 @@ public class GameController
 
         GameMode chosenGameMode = chosenKey == ConsoleKey.D1 ? GameMode.PlayerVersusCpu : GameMode.PlayerVersusPlayer;
 
-        string modeDescription = chosenGameMode == GameMode.PlayerVersusCpu ? "a CPU" : "a local player";
+        string modeDescription = chosenGameModeOption == GameModeOption.PlayerVersusCpu ? "a CPU" : "a local player";
 
         SlowPrint($"\nYou have chosen to play versus {modeDescription}.\n\n");
 
-        return chosenGameMode;
+        return chosenGameModeOption;
     }
 
-    private (Player player1, Player player2) SelectShapes(GameMode gameMode)
+    private (Player player1, Player player2) SelectShapes(GameModeOption gameModeOption)
     {
-        string player1Prompt = gameMode == GameMode.PlayerVersusPlayer
+        string player1Prompt = gameModeOption == GameModeOption.PlayerVersusPlayer
             ? "Which shape would you like to be, Player 1?"
             : "Which shape would you like for yourself to be?";
 
         char shape1 = GetShapeInput(player1Prompt);
 
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
+        SlowPrint(gameModeOption == GameModeOption.PlayerVersusPlayer
             ? $"Player 1 chose the shape {shape1}."
             : $"You chose the shape {shape1} for yourself.");
 
         Console.WriteLine();
 
-        string player2Prompt = gameMode == GameMode.PlayerVersusPlayer
+        string player2Prompt = gameModeOption == GameModeOption.PlayerVersusPlayer
             ? "Which shape would you like to be, Player 2?"
             : "Which shape would you like for the CPU to be?";
 
         char shape2 = GetShapeInput(player2Prompt, shape1);
 
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
+        SlowPrint(gameModeOption == GameModeOption.PlayerVersusPlayer
             ? $"Player 2 chose the shape {shape2}"
             : $"You chose the shape {shape2} for the CPU");
 
         Console.WriteLine();
 
-        return (new Player(shape1), gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2));
+        return (new Player(shape1),
+            gameModeOption == GameModeOption.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2));
 
         char GetShapeInput(string prompt, char? excludeShape = null)
         {
