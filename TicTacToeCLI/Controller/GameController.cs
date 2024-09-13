@@ -27,7 +27,7 @@ public class GameController
         {
             if (!sameConfig)
             {
-                Setup();
+                GameSetup();
             }
 
             RunGame();
@@ -35,7 +35,7 @@ public class GameController
         } while (!exit);
     }
 
-    private void Setup()
+    private void GameSetup()
     {
         GameModeOption chosenGameModeOption = SelectGameMode();
         if (SkipShapeSelection())
