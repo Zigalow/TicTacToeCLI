@@ -290,6 +290,7 @@ public class GameController
 
             IntegerPair? move = GetValidPlayerMove();
 
+            // Todo - Do something else than use null
             if (move == null)
             {
                 continue;
@@ -299,95 +300,89 @@ public class GameController
             return;
         }
 
-        IntegerPair? GetValidPlayerMove()
-        {
-            string? input = ReadInput();
-
-            if (input == null)
-            {
-                return InvalidMove("An unexpected action was performed.");
-            }
-
-            if (input.Equals("h"))
-            {
-                DisplayControls();
-                DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
-                return null;
-            }
-
-            IntegerPair? move = ParseMove(input);
-            if (move == null)
-            {
-                return InvalidMove("The move was written in an incorrect format.");
-            }
-
-            if (!IsWithinGrid(move.Value))
-            {
-                InvalidMove("You are trying to place a symbol outside of the grid.");
-            }
-
-            if (IsSpaceOccupied(move.Value))
-            {
-                return InvalidMove("The space is already being occupied.");
-            }
-
-            return move;
-
-            IntegerPair? InvalidMove(string message)
-            {
-                DefaultWrongFormatMessage(message);
-                return null;
-            }
-        }
-
-        IntegerPair? ParseMove(string input)
-        {
-            string[] splitByComma = input.Split(",");
-            string[] splitByDot = input.Split(".");
-
-            string[]? parts = splitByComma.Length == 2 ? splitByComma :
-                splitByDot.Length == 2 ? splitByDot : null;
-
-            IntegerPair pair;
-            try
-            {
-                if (parts != null) // If it isn't null, the Integer pair will have length of 2
-                {
-                    int in1 = Convert.ToInt32(parts[0]) - 1;
-                    int in2 = Convert.ToInt32(parts[1]) - 1;
-                    pair = new IntegerPair(in1, in2);
-                }
-                else
-                {
-                    if (!TryParse(input, out int parsedNumber))
-                    {
-                        return null;
-                    }
-
-                    GridPosition number = new GridPosition(parsedNumber - 1);
-                    return (IntegerPair)number;
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return pair;
-        }
-
-        bool IsWithinGrid(IntegerPair move)
-        {
-            return !(move.First is >= Game.GameGridSideLength or < 0 ||
-                     move.Second is >= Game.GameGridSideLength or < 0);
-        }
-
         void ApplyMove(IntegerPair move)
         {
             CurrentGame.CurrentPlayer.AddSymbolPosition(move);
             CurrentGame.GameGrid[move] = CurrentGame.CurrentPlayer.Symbol;
             DisplayMoveResult(move);
         }
+    }
+
+    private IntegerPair? GetValidPlayerMove()
+    {
+        string? input = ReadInput();
+
+        if (input == null)
+        {
+            return InvalidMove("An unexpected action was performed.");
+        }
+
+        if (input.Equals("h"))
+        {
+            DisplayControls();
+            DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
+            return null;
+        }
+
+        IntegerPair? move = ParseMove(input);
+        if (move == null)
+        {
+            return InvalidMove("The move was written in an incorrect format.");
+        }
+
+        if (!IsWithinGrid(move.Value))
+        {
+            return InvalidMove("You are trying to place a symbol outside of the grid.");
+        }
+
+        if (IsSpaceOccupied(move.Value))
+        {
+            return InvalidMove("The space is already being occupied.");
+        }
+
+        return move;
+
+        IntegerPair? InvalidMove(string message)
+        {
+            DefaultWrongFormatMessage(message);
+            return null;
+        }
+    }
+
+    private IntegerPair? ParseMove(string input)
+    {
+        string[] splitByComma = input.Split(",");
+        string[] splitByDot = input.Split(".");
+
+        string[]? parts = splitByComma.Length == 2 ? splitByComma :
+            splitByDot.Length == 2 ? splitByDot : null;
+
+        IntegerPair pair;
+        try
+        {
+            if (parts != null) // If it isn't null, the Integer pair will have length of 2
+            {
+                int in1 = Convert.ToInt32(parts[0]) - 1;
+                int in2 = Convert.ToInt32(parts[1]) - 1;
+                pair = new IntegerPair(in1, in2);
+            }
+            else
+            {
+                if (!TryParse(input, out int parsedNumber))
+                {
+                    return null;
+                }
+
+                GridPosition number = new GridPosition(parsedNumber - 1);
+                return (IntegerPair)number;
+            }
+        }
+        catch
+        {
+            return null;
+        }
+
+        return pair;
     }
 
     private void DisplayMoveResult(IntegerPair? move, string? lastMoveResultText = null)
@@ -497,6 +492,12 @@ public class GameController
     private bool IsSpaceOccupied(IntegerPair pair)
     {
         return !CurrentGame.GameGrid.IsSpaceAvailable(pair.First, pair.Second);
+    }
+
+    private bool IsWithinGrid(IntegerPair pair)
+    {
+        return !(pair.First is >= Game.GameGridSideLength or < 0 ||
+                 pair.Second is >= Game.GameGridSideLength or < 0);
     }
 
     private bool SkipShapeSelection()
