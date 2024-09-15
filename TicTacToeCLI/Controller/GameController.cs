@@ -1,289 +1,45 @@
 using TicTacToeCLI.Model;
-using TicTacToeCLI.Models;
-using TicTacToeCLI.View;
+using TicTacToeCLI.Model.GameOptions;
+using static System.Int32;
 
-// Todo - XML-doc and code refactoring (code analysis)
-// Todo - Enhance UI experience in terms of text
-// Todo - Add readme
-// Todo - Auto fills the spots when it's a tie %%
 namespace TicTacToeCLI.Controller;
 
+/// <summary>
+/// Controls the flow and logic of the Tic-Tac-Toe game.
+/// </summary>
 public class GameController
 {
-    private bool _hasShownRules = false;
-    private const int DelayInMicroseconds = 15000;
-    private Game CurrentGame { get; set; }
-    private GameMode _gameMode;
+    private const int CharPrintDelayMicroseconds = 15000;
+    private const int PostPrintDelayMicroseconds = 700;
+    private Game CurrentGame { get; set; } = null!;
+    private string LastPlacedSymbolText { get; set; } = "";
 
-    public void Start()
+    /// <summary>
+    /// Initiates a new game session, including game setup and execution.
+    /// </summary>
+    /// <remarks>
+    /// This method controls the main game loop, allowing players to start new games
+    /// or continue with the same configuration until they choose to exit.
+    /// </remarks>
+    public void InitiateGameSession()
     {
-        WelcomeMessage();
-        bool sameConfig = false;
-        bool exit;
+        DisplayWelcomeMessage();
+        bool useExistingConfiguration = false;
+        bool shouldExitGame;
 
         do
         {
-            if (!sameConfig)
+            if (!useExistingConfiguration)
             {
-                Setup();
+                ConfigureGameSettings();
             }
 
-            RunGame(out exit, out sameConfig);
-        } while (!exit);
+            PlayGame();
+            (shouldExitGame, useExistingConfiguration) = EndGameChoiceDialog();
+        } while (!shouldExitGame);
     }
 
-    private void Setup()
-    {
-        SelectGameMode(out _gameMode);
-        if (SkipShapeSelection())
-        {
-            CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
-                ? new Game(new Player('X'), new Player('O'))
-                : new CPUGame(new Player('X'), new CPU('O'));
-            return;
-        }
-
-        SelectShapes(in _gameMode, out var player1, out var player2);
-        CurrentGame = _gameMode == GameMode.PlayerVersusPlayer
-            ? new Game(player1, player2)
-            : new CPUGame(player1, player2 as CPU);
-    }
-
-    private void ExplainRules()
-    {
-        SlowPrint("Explaining the rules:");
-        Grid ruleGrid = new Grid(3)
-        {
-            [0, 0] = 'X',
-            [0, 1] = 'A',
-            [1, 0] = 'B',
-        };
-        Console.WriteLine(ruleGrid);
-        Thread.Sleep(1000);
-        SlowPrint(
-            "Placing a symbol needs to be written in the format of \"x,y\" or \"x.y\", where x is the x-axis, and y is the y-axis." +
-            "\nFor example, the top left corner, X, is 1,1, whereas the space below that, A, would be 1,2. The space to right of the top left corner, B, is 2,1." +
-            "\nSpecify where you want to place your symbol and press enter.", 50000);
-
-        Console.WriteLine("Press a button start the game...");
-        Console.ReadLine();
-    }
-
-    private void NextTurn()
-    {
-        CurrentGame.NextPlayer();
-        CurrentGame.IncreaseTurnCounter();
-    }
-
-    private void PerformMove()
-    {
-        if (CurrentGame.CurrentPlayer is CPU)
-        {
-            PerformCPUMove();
-        }
-        else
-        {
-            PerformPlayerMove();
-        }
-    }
-
-    private void GameFinishedChoiceDialog(out bool exitGame, out bool playAgainWithSameConfigs)
-    {
-        exitGame = false;
-        playAgainWithSameConfigs = false;
-
-        SlowPrint("\nWould you like to play again?\n");
-
-        Console.WriteLine("Play again with same configurations - (Press 1)");
-        Console.WriteLine("Play again with different configurations - (Press 2)");
-        Console.WriteLine("Exit game - (Press 3)\n");
-
-        ConsoleKey playAgain;
-        do
-        {
-            playAgain = ReadInputKey();
-        } while (playAgain != ConsoleKey.D1 && playAgain != ConsoleKey.D2 && playAgain != ConsoleKey.D3);
-
-        switch (playAgain)
-        {
-            case ConsoleKey.D1:
-                CurrentGame.GameGrid.EmptyGrid();
-                playAgainWithSameConfigs = true;
-                break;
-            case ConsoleKey.D2:
-                playAgainWithSameConfigs = false;
-                break;
-            default:
-                exitGame = true;
-                break;
-        }
-    }
-
-    private void RunGame(out bool exitGameChoice, out bool playAgainWithSameConfigsChoice)
-    {
-        CommencingGameMessage();
-
-        exitGameChoice = false;
-        playAgainWithSameConfigsChoice = false;
-
-        MainGameLoop();
-
-        Thread.Sleep(2500);
-
-        CurrentGame.ResetGameData();
-
-        GameFinishedChoiceDialog(out exitGameChoice, out playAgainWithSameConfigsChoice);
-    }
-
-    private void DefaultCurrentPlayerTurnMessage()
-    {
-        Console.WriteLine();
-        SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn:\n");
-    }
-
-    private void DisplayRules()
-    {
-        SlowPrint(
-            "Specify your move, in one of the two formats below and press enter:");
-        Thread.Sleep(500);
-        Console.WriteLine(
-            $"\"x.y\" or \"x,y\": x is the x-axis, and y is the y-axis. Top left corner is 1.1, whereas bottom left corner would be \"1.{CurrentGame.GameGridSideLength}\".");
-        Console.WriteLine(
-            $"\"z\": z is the allocated space in the grid. Top left corner would be 1, whereas bottom left corner would be {CurrentGame.GameGridSideLength * CurrentGame.GameGridSideLength - (CurrentGame.GameGridSideLength - 1)}.");
-        // Thread.Sleep(1000);
-        // SlowPrint("...", 500000);
-        Thread.Sleep(1000);
-    }
-
-    private void PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
-    {
-        SlowPrint($"{player} placed a symbol on {(NumberPlacement)pair} / {pair}");
-    }
-
-    private void DefaultWrongFormatMessage(string text)
-    {
-        SlowPrint(text);
-        Thread.Sleep(500);
-        SlowPrint("Try again...");
-        Thread.Sleep(1500);
-        Console.WriteLine(CurrentGame.GameGrid);
-        DisplayRules();
-    }
-
-    private void PerformCPUMove()
-    {
-        var cpu = CurrentGame.CurrentPlayer as CPU;
-        var cpuGame = CurrentGame as CPUGame;
-
-        bool getRandomMove = cpuGame.CPUCanWin(out var pairToUse) ? false : !cpuGame.CPUCanLose(out pairToUse);
-
-        if (getRandomMove)
-        {
-            do
-            {
-                pairToUse = cpu.GetRandomSpace();
-            } while (!ValidMove(pairToUse));
-        }
-
-        cpu.PlacedCurrently.Add(pairToUse);
-        CurrentGame.GameGrid[pairToUse.First, pairToUse.Second] = CurrentGame.CurrentPlayer.Symbol;
-        Console.WriteLine(CurrentGame.GameGrid);
-        PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pairToUse);
-        Thread.Sleep(1000);
-    }
-
-    private void PerformPlayerMove()
-    {
-        // TODO - Maybe remove loop
-        while (true)
-        {
-            if (!_hasShownRules)
-            {
-                if (CurrentGame.TurnCounter is 1 or 2)
-                {
-                    if (CurrentGame.TurnCounter is 1)
-                    {
-                        DisplayRules();
-                        DefaultCurrentPlayerTurnMessage();
-                    }
-                    else
-                    {
-                        DefaultCurrentPlayerTurnMessage();
-                        DisplayRules();
-                    }
-
-                    _hasShownRules = true;
-                }
-            }
-            else
-            {
-                DefaultCurrentPlayerTurnMessage();
-            }
-
-            var input = ReadInput();
-            Console.In.Close();
-
-            string[] splitByComma = input.Split(",");
-            string[] splitByDot = input.Split(".");
-
-            string[]? parts = splitByComma.Length == 2 ? splitByComma :
-                splitByDot.Length == 2 ? splitByDot : null;
-
-            IntegerPair pair;
-            try
-            {
-                if (parts != null) // If it isn't null, the Integer pair will have length of 2
-                {
-                    int in1 = Convert.ToInt32(parts[0]) - 1;
-                    int in2 = Convert.ToInt32(parts[1]) - 1;
-                    pair = new IntegerPair(in1, in2);
-                    if (pair.First < 0 || 0 > pair.Second)
-                    {
-                        throw new Exception();
-                    }
-                }
-                else if (char.IsNumber(input.ToCharArray()[0]))
-                {
-                    NumberPlacement number =
-                        new NumberPlacement(Convert.ToInt32(input) - 1);
-                    pair = (IntegerPair)number;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-            catch
-            {
-                DefaultWrongFormatMessage("The move was written in an incorrect format.");
-                continue;
-            }
-
-            if (pair.First >= CurrentGame.GameGridSideLength || pair.Second >= CurrentGame.GameGridSideLength)
-            {
-                DefaultWrongFormatMessage("You are trying to place a symbol outside of the grid.");
-                continue;
-            }
-
-            if (!ValidMove(pair))
-            {
-                SlowPrint("The space is already being occupied.");
-                SlowPrint("Choose another space.");
-                Console.WriteLine(CurrentGame.GameGrid);
-            }
-            else
-            {
-                CurrentGame.CurrentPlayer.PlacedCurrently.Add(pair);
-                CurrentGame.GameGrid[pair] = CurrentGame.CurrentPlayer.Symbol;
-                Console.WriteLine(CurrentGame.GameGrid);
-                PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, pair);
-                Thread.Sleep(1000);
-                return;
-            }
-        }
-    }
-
-    private void WelcomeMessage()
+    private void DisplayWelcomeMessage()
     {
         if (Console.KeyAvailable)
         {
@@ -295,89 +51,57 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-    private void SelectGameMode(out GameMode gameMode)
+    /// <summary>
+    /// Configures the game settings based on user input.
+    /// </summary>
+    /// <remarks>
+    /// This method handles the selection of game mode (Player vs Player or Player vs CPU)
+    /// and allows players to choose custom shapes or use default ones.
+    /// </remarks>
+    private void ConfigureGameSettings()
+    {
+        GameModeOption chosenGameModeOption = SelectGameMode();
+        if (SkipShapeSelection())
+        {
+            CurrentGame = chosenGameModeOption == GameModeOption.PlayerVersusPlayer
+                ? new Game(new Player('X'), new Player('O'))
+                : new CpuGame(new Player('X'), new Cpu('O'));
+            return;
+        }
+
+        (Player player1, Player player2) = SelectShapes(chosenGameModeOption);
+
+        CurrentGame = chosenGameModeOption switch
+        {
+            GameModeOption.PlayerVersusPlayer => new Game(player1, player2),
+            GameModeOption.PlayerVersusCpu when player2 is Cpu cpu => new CpuGame(player1, cpu),
+            _ => throw new InvalidOperationException("Invalid game mode or player configuration")
+        };
+    }
+
+    private GameModeOption SelectGameMode()
     {
         SlowPrint("How would you like to play?");
 
         Console.WriteLine("Alone versus a CPU - (Press 1)");
         Console.WriteLine("Versus another local player - (Press 2)\n");
 
-        ConsoleKey chosenGameMode;
-        do
-        {
-            chosenGameMode = ReadInputKey();
-        } while (chosenGameMode != ConsoleKey.D1 && chosenGameMode != ConsoleKey.D2);
+        ConsoleKey selectedGameModeKey =
+            ReadValidGameOption(
+                GameModeOption.PlayerVersusCpu,
+                GameModeOption.PlayerVersusPlayer
+            );
 
-        if (chosenGameMode == ConsoleKey.D1)
-        {
-            SlowPrint("\nYou have chosen to play versus a CPU.\n\n");
-            gameMode = GameMode.PlayerVersusCPU;
-        }
-        else
-        {
-            SlowPrint("\nYou have chosen to play versus a local player.\n\n");
-            gameMode = GameMode.PlayerVersusPlayer;
-        }
-    }
+        GameModeOption chosenGameModeOption =
+            selectedGameModeKey == GameOptionKeyMapper.GameModeToConsoleKey(GameModeOption.PlayerVersusCpu)
+                ? GameModeOption.PlayerVersusCpu
+                : GameModeOption.PlayerVersusPlayer;
 
-    private void SelectShapes(in GameMode gameMode, out Player player1, out Player player2)
-    {
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
-            ? "Which shape would you like to be, Player 1?"
-            : "Which shape would you like for yourself to be?");
-        SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
+        string modeDescription = chosenGameModeOption == GameModeOption.PlayerVersusCpu ? "a CPU" : "a local player";
 
-        ConsoleKeyInfo keyPressed;
-        do
-        {
-            // keyPressed = Console.ReadKey(true);
-            keyPressed = ReadInputKeyInfo();
-        } while (!char.IsLetter(keyPressed.KeyChar));
+        SlowPrint($"\nYou have chosen to play versus {modeDescription}.\n\n");
 
-        char reserved = keyPressed.KeyChar.ToString().ToUpper()[0];
-
-        Console.WriteLine();
-
-        char shape1 = keyPressed.KeyChar.ToString().ToUpper()[0];
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
-            ? $"Player 1 chose the shape {shape1}."
-            : $"You chose the shape {shape1} for yourself.");
-
-        Console.WriteLine();
-
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
-            ? "Which shape would you like to be, Player 2?"
-            : "Which shape would you like for the CPU to be?");
-        SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
-
-        do
-        {
-            // keyPressed = Console.ReadKey(true);
-            keyPressed = ReadInputKeyInfo();
-        } while (!char.IsLetter(keyPressed.KeyChar) || keyPressed.KeyChar.ToString().ToUpper()[0] == reserved);
-
-        Console.WriteLine();
-
-        char shape2 = keyPressed.KeyChar.ToString().ToUpper()[0];
-        SlowPrint(gameMode == GameMode.PlayerVersusPlayer
-            ? $"Player 2 chose the shape {shape2}"
-            : $"You chose the shape {shape2} for the CPU");
-        shape2 = keyPressed.KeyChar.ToString().ToUpper()[0];
-
-        Console.WriteLine();
-
-        player1 = new Player(shape1);
-        player2 = gameMode == GameMode.PlayerVersusPlayer ? new Player(shape2) : new CPU(shape2);
-    }
-
-    private bool ValidMove(int in1, int in2)
-    {
-        return CurrentGame.GameGrid.UnavailableSpace(in1, in2);
-    }
-
-    private bool ValidMove(IntegerPair pair)
-    {
-        return CurrentGame.GameGrid.UnavailableSpace(pair.First, pair.Second);
+        return chosenGameModeOption;
     }
 
     private bool SkipShapeSelection()
@@ -386,67 +110,512 @@ public class GameController
 
         Console.WriteLine("No - (Press 1)");
         Console.WriteLine("Yes - (Press 2)\n");
-        ConsoleKey selectShapeButton;
-        do
-        {
-            selectShapeButton = ReadInputKey();
-        } while (selectShapeButton != ConsoleKey.D1 && selectShapeButton != ConsoleKey.D2);
+        ConsoleKey shapeSelectionKey =
+            ReadValidSelectShapeOption(SelectShapesOption.SelectCustomShapes, SelectShapesOption.UseDefaultShapes);
 
-        return selectShapeButton == ConsoleKey.D1;
+        return shapeSelectionKey ==
+               GameOptionKeyMapper.SelectShapeOptionToConsoleKey(SelectShapesOption.UseDefaultShapes);
     }
 
-    private void SlowPrint(String text, int delayInMicroseconds = DelayInMicroseconds, bool newLine = true)
+    private (Player player1, Player player2) SelectShapes(GameModeOption gameModeOption)
     {
-        foreach (char c in text)
-        {
-            Console.Write(c);
-            Thread.Sleep(TimeSpan.FromMicroseconds(delayInMicroseconds));
-        }
+        string player1Prompt = gameModeOption == GameModeOption.PlayerVersusPlayer
+            ? "Which shape would you like to be, Player 1?"
+            : "Which shape would you like for yourself to be?";
 
-        if (newLine)
+        char player1Symbol = GetShapeInput(player1Prompt);
+
+        SlowPrint(gameModeOption == GameModeOption.PlayerVersusPlayer
+            ? $"Player 1 chose the shape {player1Symbol}."
+            : $"You chose the shape {player1Symbol} for yourself.");
+
+        Console.WriteLine();
+
+        string player2Prompt = gameModeOption == GameModeOption.PlayerVersusPlayer
+            ? "Which shape would you like to be, Player 2?"
+            : "Which shape would you like for the CPU to be?";
+
+        char player2Symbol = GetShapeInput(player2Prompt, player1Symbol);
+
+        SlowPrint(gameModeOption == GameModeOption.PlayerVersusPlayer
+            ? $"Player 2 chose the shape {player2Symbol}"
+            : $"You chose the shape {player2Symbol} for the CPU");
+
+        Console.WriteLine();
+
+        return (new Player(player1Symbol),
+            gameModeOption == GameModeOption.PlayerVersusPlayer ? new Player(player2Symbol) : new Cpu(player2Symbol));
+
+        char GetShapeInput(string prompt, char? excludeShape = null)
         {
+            SlowPrint(prompt);
+            SlowPrint("Press the button with the corresponding letter, from the alphabet, to choose your shape.");
+
+            char shape;
+            do
+            {
+                ConsoleKeyInfo keyPressed = ReadInputKeyInfo();
+                shape = char.ToUpper(keyPressed.KeyChar);
+            } while (!char.IsLetter(shape) || shape == excludeShape);
+
             Console.WriteLine();
+            return shape;
         }
+    }
 
-        Thread.Sleep(700);
+    private void PlayGame()
+    {
+        CommencingGameMessage();
+
+        ExecuteGameRounds();
+
+        Thread.Sleep(2500);
     }
 
     private void CommencingGameMessage()
     {
         SlowPrint("The game will now commence...");
         Thread.Sleep(1000);
-        CurrentGame.ChooseRandomPlayer();
         Console.WriteLine();
         Console.WriteLine(CurrentGame.GameGrid);
         SlowPrint($"{CurrentGame.CurrentPlayer} will start the turn...\n");
+        LastPlacedSymbolText = $"{CurrentGame.CurrentPlayer} will start the turn...";
         Thread.Sleep(2000);
     }
 
-    private void MainGameLoop()
+    /// <summary>
+    /// Executes the main game loop, handling turns and checking for win/draw conditions.
+    /// </summary>
+    /// <remarks>
+    /// This method continues to execute turns until a player wins or the game ends in a draw.
+    /// It also handles the transition between players and updates the game state.
+    /// </remarks>
+    private void ExecuteGameRounds()
     {
         while (true)
         {
-            PerformMove();
+            ExecuteCurrentTurn();
 
-            if (CurrentGame.CurrentPlayerHasWon())
+            if (CurrentGame.HasCurrentPlayerWon())
             {
                 SlowPrint($"\nCongratulations to {CurrentGame.CurrentPlayer} on winning the game...");
                 return;
             }
 
-            if (CurrentGame.AllGridsFilled())
+            if (CurrentGame.IsGameDrawn())
             {
-                SlowPrint("There are no available spaces left, and the game has ended in a tie...");
+                SlowPrint("\nThere are no available spaces left, and the game has ended in a tie...");
                 return;
             }
 
-            NextTurn();
+            AdvanceToNextPlayer();
+        }
+    }
+
+    /// <summary>
+    /// Executes a single turn for the current player.
+    /// </summary>
+    private void ExecuteCurrentTurn()
+    {
+        if (CurrentGame.CurrentPlayer is Cpu)
+        {
+            ExecuteCpuMove();
+        }
+        else
+        {
+            ExecutePlayerMove();
+        }
+    }
+
+    private void ExecuteCpuMove()
+    {
+        if (CurrentGame is not CpuGame cpuGame || CurrentGame.CurrentPlayer is not Cpu cpu)
+        {
+            throw new InvalidOperationException("PerformCpuMove called with invalid game or player type.");
+        }
+
+        GridCoordinate movePosition = GetOptimalMove() ?? GetRandomValidMove();
+
+        ApplyCpuMove(movePosition);
+        DisplayMoveResult(movePosition);
+        return;
+
+        GridCoordinate? GetOptimalMove()
+        {
+            return cpuGame.CpuCanWin(out var winningMove) ? winningMove :
+                cpuGame.CpuCanLose(out var blockingMove) ? blockingMove :
+                null;
+        }
+
+        GridCoordinate GetRandomValidMove()
+        {
+            GridCoordinate move;
+            do
+            {
+                move = cpu.GetRandomPosition();
+            } while (IsSpaceOccupied(move));
+
+            return move;
+        }
+
+        void ApplyCpuMove(GridCoordinate position)
+        {
+            cpu.AddSymbolPosition(position);
+            Console.WriteLine();
+            CurrentGame.GameGrid[position.First, position.Second] = cpu.Symbol;
+        }
+    }
+
+    private void ExecutePlayerMove()
+    {
+        while (true)
+        {
+            CurrentPlayerTurnMessage();
+
+            MoveResult moveResult = ProcessPlayerMoveInput();
+
+            switch (moveResult.Status)
+            {
+                case MoveStatus.DisplayControls:
+                    DisplayControls();
+                    DisplayLastMoveResult();
+                    continue;
+                case MoveStatus.Valid:
+                    ApplyPlayerMove(moveResult.Move!.Value);
+                    return;
+                default:
+                    GenerateErrorMessage(moveResult.Status);
+                    continue;
+            }
+        }
+
+        void ApplyPlayerMove(GridCoordinate move)
+        {
+            CurrentGame.CurrentPlayer.AddSymbolPosition(move);
+            CurrentGame.GameGrid[move] = CurrentGame.CurrentPlayer.Symbol;
+            DisplayMoveResult(move);
+        }
+    }
+
+    private void GenerateErrorMessage(MoveStatus moveStatus)
+    {
+        string errorMessage = moveStatus switch
+        {
+            MoveStatus.OutOfBounds => "You are trying to place a symbol outside of the grid.",
+            MoveStatus.SpaceOccupied => "The space is already being occupied.",
+            MoveStatus.InvalidFormat => "The move was written in an incorrect format.",
+            _ => "An unexpected error occurred."
+        };
+
+        DisplayErrorAndPromptRetry(errorMessage);
+    }
+
+    private void DisplayErrorAndPromptRetry(string text)
+    {
+        SlowPrint(text);
+        Thread.Sleep(500);
+        SlowPrint("Try again...");
+        Thread.Sleep(1500);
+        DisplayLastMoveResult();
+    }
+
+    private void DisplayControls()
+    {
+        const int sleepTime = 2500;
+        const int sleepTimeForPositions = 1200;
+        const int delayTime = 25000;
+
+        Console.WriteLine("--------------------------------------");
+        SlowPrint(
+            "There are two ways to specify a move.", delayTime, skipPostPrintDelay: true);
+        Console.WriteLine("--------------------------------------");
+
+        Thread.Sleep(sleepTime);
+        SlowPrint("The first way is to type a single number - e.g: 1", delayTime);
+        Thread.Sleep(sleepTime);
+        SlowPrint(
+            "To help you understand, the number corresponding to the four corners and middle position will be listed:",
+            delayTime);
+        Thread.Sleep(sleepTime);
+        Console.WriteLine("--------------------------------");
+        SlowPrint($"Top left corner would be {(GridPosition)GridPosition.TopLeft}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Top right corner would be {(GridPosition)GridPosition.TopRight}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Middle position would be {(GridPosition)GridPosition.Middle}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom left corner would be {(GridPosition)GridPosition.BottomLeft}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom right corner would be {(GridPosition)GridPosition.BottomRight}", delayTime,
+            skipPostPrintDelay: true);
+        Console.WriteLine("--------------------------------");
+
+        Thread.Sleep(sleepTime);
+
+        SlowPrint("The second way is to type a coordinate - e.g: 1,1 / 1.1", delayTime);
+        Thread.Sleep(sleepTime);
+        SlowPrint(
+            "The coordinate corresponding to the four corners and middle position will be listed:", delayTime);
+        Thread.Sleep(sleepTime);
+        Console.WriteLine("--------------------------------");
+        SlowPrint($"Top left corner would be {GridPosition.TopLeft}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Top right corner would be {GridPosition.TopRight}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Middle position would be {GridPosition.Middle}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom left corner would be {GridPosition.BottomLeft}", delayTime,
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom right corner would be {GridPosition.BottomRight}", delayTime, skipPostPrintDelay: true);
+        Console.WriteLine("--------------------------------");
+        SlowPrint("When a move has been specified, press enter to perform the move.\n");
+
+        SlowPrint("Press enter when you're ready to return to the game...");
+        Console.WriteLine();
+
+        ReadValidConsoleKey(ConsoleKey.Enter);
+    }
+
+    private void CurrentPlayerTurnMessage()
+    {
+        Console.WriteLine("\n");
+        SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn (Type h to display controls):\n");
+    }
+
+    /// <summary>
+    /// Processes and validates the player's move input.
+    /// </summary>
+    /// <returns>A MoveResult containing the status and parsed move.</returns>
+    /// <remarks>
+    /// This method handles various input scenarios, including displaying controls,
+    /// parsing valid moves, and identifying invalid inputs.
+    /// </remarks>
+    private MoveResult ProcessPlayerMoveInput()
+    {
+        string? input = ReadInput();
+
+        if (input == null)
+        {
+            return new MoveResult(MoveStatus.UnexpectedInput);
+        }
+
+        if (input.Equals("h"))
+        {
+            return new MoveResult(MoveStatus.DisplayControls);
+        }
+
+        GridCoordinate? parsedMove = ParseMoveInput(input);
+        return ValidateMovePosition(parsedMove);
+    }
+
+    /// <summary>
+    /// Parses the user's input into a grid coordinate.
+    /// </summary>
+    /// <param name="input">The user's input string.</param>
+    /// <returns>A GridCoordinate if parsing is successful; otherwise, null.</returns>
+    private GridCoordinate? ParseMoveInput(string input)
+    {
+        string[] splitByComma = input.Split(",");
+        string[] splitByDot = input.Split(".");
+
+        string[]? parts = splitByComma.Length == 2 ? splitByComma :
+            splitByDot.Length == 2 ? splitByDot : null;
+
+        if (parts != null) // If it isn't null, the Integer pair will have length of 2
+        {
+            if (TryParse(parts[0], out int in1) && TryParse(parts[1], out int in2))
+            {
+                return new GridCoordinate(in1 - 1, in2 - 1);
+            }
+
+            return null;
+        }
+
+        if (!TryParse(input, out int parsedNumber))
+        {
+            return null;
+        }
+
+        GridPosition number = new GridPosition(parsedNumber - 1);
+        return (GridCoordinate)number;
+    }
+
+    /// <summary>
+    /// Validates whether a move is written in the correct format, within the grid and on an unoccupied space.
+    /// </summary>
+    /// <param name="move">The move to validate.</param>
+    /// <returns>A MoveResult indicating the validity of the move.</returns>
+    private MoveResult ValidateMovePosition(GridCoordinate? move)
+    {
+        if (move == null)
+        {
+            return new(MoveStatus.InvalidFormat);
+        }
+
+        if (!IsWithinGrid(move.Value))
+        {
+            return new(MoveStatus.OutOfBounds);
+        }
+
+        if (IsSpaceOccupied(move.Value))
+        {
+            return new(MoveStatus.OutOfBounds);
+        }
+
+        return new MoveResult(MoveStatus.Valid, move);
+    }
+
+    private void DisplayMoveResult(GridCoordinate move)
+    {
+        Console.Write(CurrentGame.GameGrid);
+        LastPlacedSymbolText = PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move);
+        Thread.Sleep(1000);
+    }
+
+    private void DisplayLastMoveResult()
+    {
+        Console.Write(CurrentGame.GameGrid);
+        PlayerPlacedSymbolMessage(LastPlacedSymbolText);
+        Thread.Sleep(1000);
+    }
+
+    private string PlayerPlacedSymbolMessage(Player player, GridCoordinate pair)
+    {
+        return PlayerPlacedSymbolMessage($"{player} placed a symbol on {(GridPosition)pair} / {pair}");
+    }
+
+    private string PlayerPlacedSymbolMessage(string text)
+    {
+        SlowPrint(text);
+        return text;
+    }
+
+    private bool IsSpaceOccupied(GridCoordinate pair)
+    {
+        return !CurrentGame.GameGrid.IsSpaceAvailable(pair.First, pair.Second);
+    }
+
+    private bool IsWithinGrid(GridCoordinate pair)
+    {
+        return !(pair.First is >= Game.GameGridSideLength or < 0 ||
+                 pair.Second is >= Game.GameGridSideLength or < 0);
+    }
+
+    private void AdvanceToNextPlayer()
+    {
+        CurrentGame.NextPlayer();
+        CurrentGame.IncreaseTurnCounter();
+    }
+
+    private ConsoleKey ReadValidConsoleKey(params ConsoleKey[] validKeys)
+    {
+        if (validKeys.Length == 0)
+        {
+            throw new ArgumentException("At least one valid key must be provided.");
+        }
+
+        ConsoleKey choice;
+        do
+        {
+            choice = ReadInputKey();
+        } while (!validKeys.Contains(choice));
+
+        return choice;
+    }
+
+    private ConsoleKey ReadValidGameOption(params GameModeOption[] validOptions)
+    {
+        ConsoleKey[] validKeys = validOptions.Select(GameOptionKeyMapper.GameModeToConsoleKey).ToArray();
+        return ReadValidConsoleKey(validKeys);
+    }
+
+    private ConsoleKey ReadValidSelectShapeOption(params SelectShapesOption[] validOptions)
+    {
+        ConsoleKey[] validKeys = validOptions.Select(GameOptionKeyMapper.SelectShapeOptionToConsoleKey).ToArray();
+        return ReadValidConsoleKey(validKeys);
+    }
+
+    private ConsoleKey ReadValidPlayAgainOption(params PlayAgainOption[] validOptions)
+    {
+        ConsoleKey[] validKeys = validOptions.Select(GameOptionKeyMapper.PlayAgainOptionToConsoleKey).ToArray();
+        return ReadValidConsoleKey(validKeys);
+    }
+
+    private (bool exitGame, bool playAgainWithSameConfigs) EndGameChoiceDialog()
+    {
+        SlowPrint("\nWould you like to play again?\n");
+        DisplayEndGameOptions();
+        ConsoleKey userChoice = ReadValidPlayAgainOption(
+            PlayAgainOption.PlayAgainWithSameConfig,
+            PlayAgainOption.PlayAgainWithNewConfig,
+            PlayAgainOption.ExitGame
+        );
+
+        return HandleEndGameChoice(userChoice);
+
+        void DisplayEndGameOptions()
+        {
+            Console.WriteLine("Play again with same configurations - (Press 1)");
+            Console.WriteLine("Play again with different configurations - (Press 2)");
+            Console.WriteLine("Exit game - (Press 3)\n");
+        }
+
+        (bool exitGame, bool playAgainWithSameConfigs) HandleEndGameChoice(ConsoleKey choice)
+        {
+            GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithNewConfig);
+            GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.ExitGame);
+
+            if (choice == GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithSameConfig))
+            {
+                CurrentGame.ResetGame();
+                return (exitGame: false, playAgainWithSameConfigs: true);
+            }
+
+            if (choice == GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithNewConfig))
+            {
+                return (exitGame: false, playAgainWithSameConfigs: false);
+            }
+
+            if (choice == GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.ExitGame))
+            {
+                return (exitGame: true, playAgainWithSameConfigs: false);
+            }
+
+            throw new InvalidOperationException("Invalid choice");
+        }
+    }
+
+    /// <summary>
+    /// Displays text gradually with a delay between each character.
+    /// </summary>
+    /// <param name="text">The text to display.</param>
+    /// <param name="charPrintDelayMicroseconds">Delay between each character in microseconds.</param>
+    /// <param name="postPrintDelayMicroseconds">Delay after printing the entire text in microseconds.</param>
+    /// <param name="skipPostPrintDelay">If true, skips the post-print delay.</param>
+    /// <remarks>
+    /// This method creates a typewriter-like effect for text output, enhancing the user experience.
+    /// It allows customization of delays between characters and after the entire text is printed.
+    /// </remarks>
+    private void SlowPrint(string text, int charPrintDelayMicroseconds = CharPrintDelayMicroseconds,
+        int postPrintDelayMicroseconds = PostPrintDelayMicroseconds, bool skipPostPrintDelay = false)
+    {
+        foreach (char c in text)
+        {
+            Console.Write(c);
+            Thread.Sleep(TimeSpan.FromMicroseconds(charPrintDelayMicroseconds));
+        }
+
+        Console.WriteLine();
+
+        if (!skipPostPrintDelay)
+        {
+            Thread.Sleep(postPrintDelayMicroseconds);
         }
     }
 
     private string? ReadInput()
     {
-        while (Console.KeyAvailable) // Clear the input buffer
+        while (Console.KeyAvailable)
         {
             Console.ReadKey(true);
         }
@@ -456,7 +625,7 @@ public class GameController
 
     private ConsoleKey ReadInputKey()
     {
-        while (Console.KeyAvailable) // Clear the input buffer
+        while (Console.KeyAvailable)
         {
             Console.ReadKey(true);
         }
@@ -466,7 +635,7 @@ public class GameController
 
     private ConsoleKeyInfo ReadInputKeyInfo()
     {
-        while (Console.KeyAvailable) // Clear the input buffer
+        while (Console.KeyAvailable)
         {
             Console.ReadKey(true);
         }
