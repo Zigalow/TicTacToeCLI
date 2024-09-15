@@ -74,6 +74,18 @@ public class GameController
             ExecutePlayerMove();
         }
     }
+    private void DisplayMoveResult(IntegerPair move)
+    {
+        Console.Write(CurrentGame.GameGrid);
+        LastPlacedSymbolText = PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move);
+        Thread.Sleep(1000);
+    }
+    private void DisplayLastMoveResult()
+    {
+        Console.Write(CurrentGame.GameGrid);
+        PlayerPlacedSymbolMessage(LastPlacedSymbolText);
+        Thread.Sleep(1000);
+    }
 
     private ConsoleKey ReadValidConsoleKey(params ConsoleKey[] validKeys)
     {
