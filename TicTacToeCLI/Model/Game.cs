@@ -1,135 +1,113 @@
-using TicTacToeCLI.Models;
-using TicTacToeCLI.View;
-
 namespace TicTacToeCLI.Model;
 
+/// <summary>
+/// The main class that represents the game. It contains the <see cref="GameGrid"/> object, list of <see cref="Players"/> participating in the game
+/// and logic relating to the game itself.
+/// </summary>
 public class Game
 {
-    public int TurnCounter { get; private set; } = 1;
+    /// <summary>
+    /// The side length of the game grid. This should always be 3 in TicTacToe, but can be changed for playing with bigger grids
+    /// </summary>
+    public const int GameGridSideLength = 3;
 
-    protected readonly Player[] Players = new Player[2];
-    private readonly Grid _gameGrid;
+    private static readonly Random Random = new();
 
-    protected readonly int GridSideLength = 3;
+    /// <summary>
+    /// The turn counter of the game. Starts at 1 and increments by 1 after each turn
+    /// It's currently not being used for anything relevant
+    /// </summary>
+    private int TurnCounter { get; set; } = 1;
 
+    /// <summary>
+    /// The <see cref="Grid"/> object that represents the game board
+    /// </summary>
+    public Grid GameGrid { get; }
 
-    public int GameGridSideLength
-    {
-        get => GridSideLength;
-    }
-
-    public Grid GameGrid
-    {
-        get => _gameGrid;
-        private init => _gameGrid = value;
-    }
-
-
+    /// <summary>
+    /// The current <see cref="Player"/> of the game
+    /// </summary>
     public Player CurrentPlayer { get; private set; }
 
-    public Game(Player player1, Player cpu)
+    /// <summary>
+    /// The list of players participating in the game. Declared as a read-only list
+    /// </summary>
+    protected IReadOnlyList<Player> Players { get; }
+
+    /// <summary>
+    /// Constructor for the <see cref="Game"/> class, which initializes the <see cref="GameGrid"/> and the <see cref="Players"/>
+    /// </summary>
+    /// <param name="player1">The first player to participate in the game, can only be a human player.</param>
+    /// <param name="player2">The second player to participate in the game, can be a human or CPU player.</param>
+    public Game(Player player1, Player player2)
     {
-        GameGrid = new Grid(GridSideLength);
-        Players[0] = player1;
-        Players[1] = cpu;
-        CurrentPlayer = Players[0];
-        NumberPlacement.SetGridSize(GameGridSideLength);
+        GameGrid = new Grid(GameGridSideLength);
+        Players = new[] { player1, player2 }.AsReadOnly();
+        CurrentPlayer = ChooseRandomPlayer();
     }
 
-
-    public bool CurrentPlayerHasWon()
+    /// <summary>
+    /// Checks if the current player has won the game
+    /// </summary>
+    /// <returns>Returns true, if the current player has won the game</returns>
+    public bool HasCurrentPlayerWon()
     {
-        int matchesSideways = 0;
-        int matchesVertically = 0;
-        int matchesLeftCrosses = 0;
-        int matchesRightCrosses = 0;
-        char symbolToCheckFor = CurrentPlayer.Symbol;
-        for (int i = 0; i < GridSideLength; i++)
-        {
-            for (int j = 0; j < GridSideLength; j++)
-            {
-                // Vertically and Sideways
-                if (symbolToCheckFor == GameGrid[i, j] || symbolToCheckFor == GameGrid[j, i])
-                {
-                    // Sideways
-                    if (symbolToCheckFor == GameGrid[j, i])
-                    {
-                        matchesSideways++;
-                    }
-
-                    // Vertically
-                    if (symbolToCheckFor == GameGrid[i, j])
-                    {
-                        matchesVertically++;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (matchesSideways == GridSideLength || matchesVertically == GridSideLength)
-            {
-                return true;
-            }
-
-            matchesVertically = 0;
-            matchesSideways = 0;
-        }
-
-        // Crosses
-
-        for (int i = 0; i < GridSideLength; i++)
-        {
-            // Left_to_Right cross
-            if (symbolToCheckFor == GameGrid[i, i])
-            {
-                matchesLeftCrosses++;
-            }
-
-            // Right_to_Left cross
-            if (symbolToCheckFor == GameGrid[GridSideLength - i - 1, i])
-            {
-                matchesRightCrosses++;
-            }
-        }
-
-        return GridSideLength == matchesLeftCrosses || GridSideLength == matchesRightCrosses;
+        return GameGrid.HasPlayerWon(CurrentPlayer);
     }
 
-    public bool AllGridsFilled()
+    /// <summary>
+    /// Checks if the game is drawn
+    /// </summary>
+    /// <returns>Returns true, if all the positions in the <see cref="Grid"/> have been filled</returns>
+    public bool IsGameDrawn()
     {
-        foreach (var element in GameGrid)
-        {
-            if (element == null) return false;
-        }
-
-        return true;
+        return GameGrid.IsAllCellsFilled();
     }
 
+    /// <summary>
+    /// Changes the current player to the next player
+    /// </summary>
     public void NextPlayer()
     {
         CurrentPlayer = CurrentPlayer == Players[0] ? Players[1] : Players[0];
     }
 
-    public void ChooseRandomPlayer()
+    /// <summary>
+    /// Chooses a random player to start the game
+    /// </summary>
+    private Player ChooseRandomPlayer()
     {
-        CurrentPlayer = new Random().Next(2) == 0 ? Players[0] : Players[1];
+        return Random.Next(2) == 0 ? Players[0] : Players[1];
     }
 
+    /// <summary>
+    /// Increases the turn counter of the game
+    /// </summary>
     public void IncreaseTurnCounter()
     {
         TurnCounter++;
     }
 
-    public void ResetGameData()
+    /// <summary>
+    /// Resets the data of every <see cref="Player"/> and cpu involved in the game 
+    /// </summary>
+    private void ResetPlayerData()
     {
         foreach (var player in Players)
         {
-            player.ResetData();
+            player.ClearData();
         }
+    }
 
+    /// <summary>
+    /// Resets the game to the initial state
+    /// This includes choosing a random player to start the game as well as resetting the <see cref="TurnCounter"/> and players' data
+    /// </summary>
+    public void ResetGame()
+    {
+        ResetPlayerData();
+        GameGrid.ClearCells();
+        CurrentPlayer = ChooseRandomPlayer();
         TurnCounter = 1;
     }
 }

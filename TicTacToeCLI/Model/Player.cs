@@ -1,46 +1,101 @@
-using TicTacToeCLI.Model;
+namespace TicTacToeCLI.Model;
 
-namespace TicTacToeCLI.Models;
-
+/// <summary>
+/// This class represents a player.
+/// It contains a list of <see cref="SymbolPositions"/>, methods for retrieving the list and adding a <see cref="GridCoordinate"/> to the list,
+/// as well as a <see cref="Name"/> and <see cref="Symbol"/> property.
+/// </summary>
+/// <remarks>This class should be inherited by the <see cref="Cpu"/> class.</remarks>
 public class Player
 {
-    private static int _numberOfPlayers;
-    public List<IntegerPair> PlacedCurrently { get; }
+    /// <summary>
+    /// Represents the current positions of a player's placements of symbols in the game.
+    /// </summary>
+    private readonly List<GridCoordinate> _symbolPositions;
 
-    protected int NumberOfPlayers
+    /// <summary>
+    /// The chosen symbol of the player
+    /// </summary>
+    public char Symbol { get; }
+
+    /// <summary>
+    /// Property that returns the number of players in the game. 
+    /// </summary>
+    private static int NumberOfPlayers { get; set; }
+
+    /// <summary>
+    /// Method for returning the player number It's designed to not be for more than two players.
+    /// The value returned can only be 1 or 2.
+    /// </summary>
+    private static int GetPlayerNumber()
     {
-        get
-        {
-            if (_numberOfPlayers >= 2)
-            {
-                _numberOfPlayers = 0;
-            }
-
-            return _numberOfPlayers;
-        }
-        init => _numberOfPlayers = value;
+        NumberOfPlayers = (NumberOfPlayers % 2) + 1;
+        return NumberOfPlayers;
     }
 
-    public char Symbol { get; }
-    protected string Name { get; init; }
+    /// <summary>
+    /// Readonly list of the player's symbol positions in the game/>
+    /// </summary>
+    public IReadOnlyList<GridCoordinate> SymbolPositions => _symbolPositions.AsReadOnly();
 
-    public Player(char symbol)
+    /// <summary>
+    /// The chosen name of the player
+    /// </summary>
+    private string Name { get; set; }
+
+    /// <summary>
+    /// Constructor for <see cref="Player"/> class. Chained to the protected constructor, where null is passed in as a name, to get generic name for the player
+    /// </summary>
+    /// <param name="symbol">Displayed symbol of player</param>
+    public Player(char symbol) : this(null, symbol)
+    {
+    }
+
+    /// <summary>
+    /// Protected constructor for <see cref="Player"/> class.
+    /// Currently intended to give generic name to human players, where null is passed in as name in the chained constructor
+    /// </summary>
+    /// <param name="name">Displayed name of player</param>
+    /// <param name="symbol">Displayed symbol of player</param>
+    protected Player(string? name, char symbol)
     {
         Symbol = symbol;
-        {
-            Name = $"Player {++NumberOfPlayers}";
-        }
-        PlacedCurrently = new List<IntegerPair>();
+        Name = string.IsNullOrEmpty(name) ? $"Player {GetPlayerNumber()}" : name;
+        _symbolPositions = new List<GridCoordinate>();
     }
 
+    /// <summary>
+    /// Adds a <see cref="GridCoordinate"/> to the list of <see cref="SymbolPositions"/>, representing that a symbol has been placed by a player
+    /// </summary>
+    /// <param name="pair">the integer pair being added to the <see cref="SymbolPositions"/> list</param>
+    public void AddSymbolPosition(GridCoordinate pair)
+    {
+        _symbolPositions.Add(pair);
+    }
+
+    /// <summary>
+    /// Clears the data of the player. This includes clearing the list of <see cref="SymbolPositions"/>
+    /// </summary>
+    internal virtual void ClearData()
+    {
+        _symbolPositions.Clear();
+    }
+
+    /// <summary>
+    /// Returns a string that represents the <see cref="Name"/> and <see cref="Symbol"/> of the player.
+    /// </summary>
+    /// <returns>a string that represents the <see cref="Name"/> and <see cref="Symbol"/> of the player</returns>
     public override string ToString()
     {
-        return string.Format(Name + " with symbol of '" + Symbol + "'");
+        return $"{Name} with symbol of '{Symbol}'";
     }
 
-    public virtual void ResetData()
+    /// <summary>
+    /// Sets the name of the player
+    /// </summary>
+    /// <param name="name"> the name to be set for the player</param>
+    public void SetName(string name)
     {
-        PlacedCurrently.Clear();
+        Name = name;
     }
-    
 }

@@ -2,12 +2,12 @@
 
 namespace TicTacToeCLI;
 
-abstract class Program
+internal abstract class Program
 {
-    static void Main()
+    private static void Main()
     {
         GameController gameController = new();
-        gameController.Start();
+        gameController.InitiateGameSession();
         Console.WriteLine("Press a key to exit...");
         Console.ReadKey();
     }
