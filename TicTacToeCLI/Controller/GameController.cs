@@ -62,15 +62,15 @@ public class GameController
         CurrentGame.IncreaseTurnCounter();
     }
 
-    private void PerformMove()
+    private void ExecuteCurrentTurn()
     {
         if (CurrentGame.CurrentPlayer is Cpu)
         {
-            PerformCpuMove();
+            ExecuteCpuMove();
         }
         else
         {
-            PerformPlayerMove();
+            ExecutePlayerMove();
         }
     }
 
@@ -161,7 +161,7 @@ public class GameController
         Thread.Sleep(2500);
     }
 
-    private void DefaultCurrentPlayerTurnMessage()
+    private void CurrentPlayerTurnMessage()
     {
         Console.WriteLine("\n");
         SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn (Type h to display controls):\n");
@@ -234,7 +234,7 @@ public class GameController
         return text;
     }
 
-    private void DefaultWrongFormatMessage(string text)
+    private void DisplayErrorAndPromptRetry(string text)
     {
         SlowPrint(text);
         Thread.Sleep(500);
@@ -243,7 +243,7 @@ public class GameController
         DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
     }
 
-    private void PerformCpuMove()
+    private void ExecuteCpuMove()
     {
         if (CurrentGame is not CpuGame cpuGame || CurrentGame.CurrentPlayer is not Cpu cpu)
         {
@@ -282,13 +282,13 @@ public class GameController
         }
     }
 
-    private void PerformPlayerMove()
+    private void ExecutePlayerMove()
     {
         while (true)
         {
-            DefaultCurrentPlayerTurnMessage();
+            CurrentPlayerTurnMessage();
 
-            IntegerPair? move = GetValidPlayerMove();
+            MoveResult moveResult = ProcessPlayerMoveInput();
 
             // Todo - Do something else than use null
             if (move == null)
@@ -545,7 +545,7 @@ public class GameController
     {
         while (true)
         {
-            PerformMove();
+            ExecuteCurrentTurn();
 
             if (CurrentGame.CurrentPlayerHasWon())
             {
