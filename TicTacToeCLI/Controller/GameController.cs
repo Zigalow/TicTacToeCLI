@@ -11,31 +11,30 @@ namespace TicTacToeCLI.Controller;
 
 public class GameController
 {
-    // private bool _hasShownRules = false;
-    private const int TextDelayInMicroseconds = 0 /*15000*/;
-    private const int SleepDelayInMicroseconds = 700;
+    private const int CharPrintDelayMicroseconds = 15000;
+    private const int PostPrintDelayMicroseconds = 700;
     private Game CurrentGame { get; set; } = null!;
     private string LastPlacedSymbolText { get; set; } = "";
 
-    public void Start()
+    public void InitiateGameSession()
     {
-        WelcomeMessage();
-        bool sameConfig = false;
-        bool exit;
+        DisplayWelcomeMessage();
+        bool useExistingConfiguration = false;
+        bool shouldExitGame;
 
         do
         {
-            if (!sameConfig)
+            if (!useExistingConfiguration)
             {
-                GameSetup();
+                ConfigureGameSettings();
             }
 
-            RunGame();
-            (exit, sameConfig) = GameFinishedChoiceDialog();
-        } while (!exit);
+            PlayGame();
+            (shouldExitGame, useExistingConfiguration) = EndGameChoiceDialog();
+        } while (!shouldExitGame);
     }
 
-    private void WelcomeMessage()
+    private void DisplayWelcomeMessage()
     {
         if (Console.KeyAvailable)
         {
@@ -47,7 +46,7 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-    private void GameSetup()
+    private void ConfigureGameSettings()
     {
         GameModeOption chosenGameModeOption = SelectGameMode();
         if (SkipShapeSelection())
@@ -75,14 +74,14 @@ public class GameController
         Console.WriteLine("Alone versus a CPU - (Press 1)");
         Console.WriteLine("Versus another local player - (Press 2)\n");
 
-        ConsoleKey chosenKey =
+        ConsoleKey selectedGameModeKey =
             ReadValidGameOption(
                 GameModeOption.PlayerVersusCpu,
                 GameModeOption.PlayerVersusPlayer
             );
 
         GameModeOption chosenGameModeOption =
-            chosenKey == GameOptionKeyMapper.GameModeToConsoleKey(GameModeOption.PlayerVersusCpu)
+            selectedGameModeKey == GameOptionKeyMapper.GameModeToConsoleKey(GameModeOption.PlayerVersusCpu)
                 ? GameModeOption.PlayerVersusCpu
                 : GameModeOption.PlayerVersusPlayer;
 
@@ -99,10 +98,10 @@ public class GameController
 
         Console.WriteLine("No - (Press 1)");
         Console.WriteLine("Yes - (Press 2)\n");
-        ConsoleKey selectShapeButton =
+        ConsoleKey shapeSelectionKey =
             ReadValidSelectShapeOption(SelectShapesOption.SelectCustomShapes, SelectShapesOption.UseDefaultShapes);
 
-        return selectShapeButton ==
+        return shapeSelectionKey ==
                GameOptionKeyMapper.SelectShapeOptionToConsoleKey(SelectShapesOption.UseDefaultShapes);
     }
 
@@ -112,11 +111,11 @@ public class GameController
             ? "Which shape would you like to be, Player 1?"
             : "Which shape would you like for yourself to be?";
 
-        char shape1 = GetShapeInput(player1Prompt);
+        char player1Symbol = GetShapeInput(player1Prompt);
 
         SlowPrint(gameModeOption == GameModeOption.PlayerVersusPlayer
-            ? $"Player 1 chose the shape {shape1}."
-            : $"You chose the shape {shape1} for yourself.");
+            ? $"Player 1 chose the shape {player1Symbol}."
+            : $"You chose the shape {player1Symbol} for yourself.");
 
         Console.WriteLine();
 
@@ -124,16 +123,16 @@ public class GameController
             ? "Which shape would you like to be, Player 2?"
             : "Which shape would you like for the CPU to be?";
 
-        char shape2 = GetShapeInput(player2Prompt, shape1);
+        char player2Symbol = GetShapeInput(player2Prompt, player1Symbol);
 
         SlowPrint(gameModeOption == GameModeOption.PlayerVersusPlayer
-            ? $"Player 2 chose the shape {shape2}"
-            : $"You chose the shape {shape2} for the CPU");
+            ? $"Player 2 chose the shape {player2Symbol}"
+            : $"You chose the shape {player2Symbol} for the CPU");
 
         Console.WriteLine();
 
-        return (new Player(shape1),
-            gameModeOption == GameModeOption.PlayerVersusPlayer ? new Player(shape2) : new Cpu(shape2));
+        return (new Player(player1Symbol),
+            gameModeOption == GameModeOption.PlayerVersusPlayer ? new Player(player2Symbol) : new Cpu(player2Symbol));
 
         char GetShapeInput(string prompt, char? excludeShape = null)
         {
@@ -152,11 +151,11 @@ public class GameController
         }
     }
 
-    private void RunGame()
+    private void PlayGame()
     {
         CommencingGameMessage();
 
-        MainGameLoop();
+        ExecuteGameRounds();
 
         Thread.Sleep(2500);
     }
@@ -172,7 +171,7 @@ public class GameController
         Thread.Sleep(2000);
     }
 
-    private void MainGameLoop()
+    private void ExecuteGameRounds()
     {
         while (true)
         {
@@ -190,7 +189,7 @@ public class GameController
                 return;
             }
 
-            NextTurn();
+            AdvanceToNextPlayer();
         }
     }
 
@@ -306,7 +305,7 @@ public class GameController
 
         Console.WriteLine("--------------------------------------");
         SlowPrint(
-            "There are two ways to specify a move.", delayTime, noSleep: true);
+            "There are two ways to specify a move.", delayTime, skipPostPrintDelay: true);
         Console.WriteLine("--------------------------------------");
 
         Thread.Sleep(sleepTime);
@@ -318,14 +317,15 @@ public class GameController
         Thread.Sleep(sleepTime);
         Console.WriteLine("--------------------------------");
         SlowPrint($"Top left corner would be {(GridPosition)GridPosition.TopLeft}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
         SlowPrint($"Top right corner would be {(GridPosition)GridPosition.TopRight}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
         SlowPrint($"Middle position would be {(GridPosition)GridPosition.Middle}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
         SlowPrint($"Bottom left corner would be {(GridPosition)GridPosition.BottomLeft}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
-        SlowPrint($"Bottom right corner would be {(GridPosition)GridPosition.BottomRight}", delayTime, noSleep: true);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom right corner would be {(GridPosition)GridPosition.BottomRight}", delayTime,
+            skipPostPrintDelay: true);
         Console.WriteLine("--------------------------------");
 
         Thread.Sleep(sleepTime);
@@ -337,14 +337,14 @@ public class GameController
         Thread.Sleep(sleepTime);
         Console.WriteLine("--------------------------------");
         SlowPrint($"Top left corner would be {GridPosition.TopLeft}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
         SlowPrint($"Top right corner would be {GridPosition.TopRight}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
         SlowPrint($"Middle position would be {GridPosition.Middle}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
         SlowPrint($"Bottom left corner would be {GridPosition.BottomLeft}", delayTime,
-            sleepDelayInMicroseconds: sleepTimeForPositions);
-        SlowPrint($"Bottom right corner would be {GridPosition.BottomRight}", delayTime, noSleep: true);
+            postPrintDelayMicroseconds: sleepTimeForPositions);
+        SlowPrint($"Bottom right corner would be {GridPosition.BottomRight}", delayTime, skipPostPrintDelay: true);
         Console.WriteLine("--------------------------------");
         SlowPrint("When a move has been specified, press enter to perform the move.\n");
 
@@ -374,11 +374,11 @@ public class GameController
             return new MoveResult(MoveStatus.DisplayControls);
         }
 
-        IntegerPair? parsedMove = ParseMove(input);
-        return ValidateMove(parsedMove);
+        IntegerPair? parsedMove = ParseMoveInput(input);
+        return ValidateMovePosition(parsedMove);
     }
 
-    private IntegerPair? ParseMove(string input)
+    private IntegerPair? ParseMoveInput(string input)
     {
         string[] splitByComma = input.Split(",");
         string[] splitByDot = input.Split(".");
@@ -405,7 +405,7 @@ public class GameController
         return (IntegerPair)number;
     }
 
-    private MoveResult ValidateMove(IntegerPair? move)
+    private MoveResult ValidateMovePosition(IntegerPair? move)
     {
         if (move == null)
         {
@@ -461,8 +461,7 @@ public class GameController
                  pair.Second is >= Game.GameGridSideLength or < 0);
     }
 
-    // todo - naming
-    private void NextTurn()
+    private void AdvanceToNextPlayer()
     {
         CurrentGame.NextPlayer();
         CurrentGame.IncreaseTurnCounter();
@@ -502,27 +501,26 @@ public class GameController
         return ReadValidConsoleKey(validKeys);
     }
 
-    // todo - naming
-    private (bool exitGame, bool playAgainWithSameConfigs) GameFinishedChoiceDialog()
+    private (bool exitGame, bool playAgainWithSameConfigs) EndGameChoiceDialog()
     {
         SlowPrint("\nWould you like to play again?\n");
-        DisplayOptions();
+        DisplayEndGameOptions();
         ConsoleKey userChoice = ReadValidPlayAgainOption(
             PlayAgainOption.PlayAgainWithSameConfig,
             PlayAgainOption.PlayAgainWithNewConfig,
             PlayAgainOption.ExitGame
         );
 
-        return ProcessChoice(userChoice);
+        return HandleEndGameChoice(userChoice);
 
-        void DisplayOptions()
+        void DisplayEndGameOptions()
         {
             Console.WriteLine("Play again with same configurations - (Press 1)");
             Console.WriteLine("Play again with different configurations - (Press 2)");
             Console.WriteLine("Exit game - (Press 3)\n");
         }
 
-        (bool exitGame, bool playAgainWithSameConfigs) ProcessChoice(ConsoleKey choice)
+        (bool exitGame, bool playAgainWithSameConfigs) HandleEndGameChoice(ConsoleKey choice)
         {
             GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.PlayAgainWithNewConfig);
             GameOptionKeyMapper.PlayAgainOptionToConsoleKey(PlayAgainOption.ExitGame);
@@ -547,20 +545,20 @@ public class GameController
         }
     }
 
-    private void SlowPrint(string text, int textDelayInMicroseconds = TextDelayInMicroseconds,
-        int sleepDelayInMicroseconds = SleepDelayInMicroseconds, bool noSleep = false)
+    private void SlowPrint(string text, int charPrintDelayMicroseconds = CharPrintDelayMicroseconds,
+        int postPrintDelayMicroseconds = PostPrintDelayMicroseconds, bool skipPostPrintDelay = false)
     {
         foreach (char c in text)
         {
             Console.Write(c);
-            Thread.Sleep(TimeSpan.FromMicroseconds(textDelayInMicroseconds));
+            Thread.Sleep(TimeSpan.FromMicroseconds(charPrintDelayMicroseconds));
         }
 
         Console.WriteLine();
 
-        if (!noSleep)
+        if (!skipPostPrintDelay)
         {
-            Thread.Sleep(sleepDelayInMicroseconds);
+            Thread.Sleep(postPrintDelayMicroseconds);
         }
     }
 
