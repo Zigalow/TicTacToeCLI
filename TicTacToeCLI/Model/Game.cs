@@ -50,7 +50,7 @@ public class Game
     /// Checks if the current player has won the game
     /// </summary>
     /// <returns>Returns true, if the current player has won the game</returns>
-    public bool CurrentPlayerHasWon()
+    public bool HasCurrentPlayerWon()
     {
         return GameGrid.HasPlayerWon(CurrentPlayer);
     }
@@ -59,7 +59,7 @@ public class Game
     /// Checks if the game is drawn
     /// </summary>
     /// <returns>Returns true, if all the positions in the <see cref="Grid"/> have been filled</returns>
-    public bool GameIsDrawn()
+    public bool IsGameDrawn()
     {
         return GameGrid.IsAllCellsFilled();
     }

@@ -56,6 +56,7 @@ public class GameController
         };
     }
 
+// todo
     private void NextTurn()
     {
         CurrentGame.NextPlayer();
@@ -108,6 +109,7 @@ public class GameController
         return ReadValidConsoleKey(validKeys);
     }
 
+    // todo
     private (bool exitGame, bool playAgainWithSameConfigs) GameFinishedChoiceDialog()
     {
         SlowPrint("\nWould you like to play again?\n");
@@ -553,13 +555,13 @@ public class GameController
         {
             ExecuteCurrentTurn();
 
-            if (CurrentGame.CurrentPlayerHasWon())
+            if (CurrentGame.HasCurrentPlayerWon())
             {
                 SlowPrint($"\nCongratulations to {CurrentGame.CurrentPlayer} on winning the game...");
                 return;
             }
 
-            if (CurrentGame.GameIsDrawn())
+            if (CurrentGame.IsGameDrawn())
             {
                 SlowPrint("There are no available spaces left, and the game has ended in a tie...");
                 return;
