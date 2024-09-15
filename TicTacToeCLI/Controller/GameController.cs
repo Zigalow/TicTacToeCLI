@@ -290,14 +290,19 @@ public class GameController
 
             MoveResult moveResult = ProcessPlayerMoveInput();
 
-            // Todo - Do something else than use null
-            if (move == null)
+            switch (moveResult.Status)
             {
-                continue;
+                case MoveStatus.DisplayControls:
+                    DisplayControls();
+                    DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
+                    continue;
+                case MoveStatus.Valid:
+                    ApplyMove(moveResult.Move!.Value);
+                    return;
+                default:
+                    GenerateErrorMessage(moveResult.Status);
+                    continue;
             }
-
-            ApplyMove(move.Value);
-            return;
         }
 
         void ApplyMove(IntegerPair move)
@@ -308,45 +313,55 @@ public class GameController
         }
     }
 
-    private IntegerPair? GetValidPlayerMove()
+    private void GenerateErrorMessage(MoveStatus moveStatus)
+    {
+        string errorMessage = moveStatus switch
+        {
+            MoveStatus.OutOfBounds => "You are trying to place a symbol outside of the grid.",
+            MoveStatus.SpaceOccupied => "The space is already being occupied.",
+            MoveStatus.InvalidFormat => "The move was written in an incorrect format.",
+            _ => "An unexpected error occurred."
+        };
+
+        DisplayErrorAndPromptRetry(errorMessage);
+    }
+
+    private MoveResult ProcessPlayerMoveInput()
     {
         string? input = ReadInput();
 
         if (input == null)
         {
-            return InvalidMove("An unexpected action was performed.");
+            return new MoveResult(MoveStatus.UnexpectedInput);
         }
 
         if (input.Equals("h"))
         {
-            DisplayControls();
-            DisplayMoveResult(lastMoveResultText: LastPlacedSymbolText);
-            return null;
+            return new MoveResult(MoveStatus.DisplayControls);
         }
 
-        IntegerPair? move = ParseMove(input);
+        IntegerPair? parsedMove = ParseMove(input);
+        return ValidateMove(parsedMove);
+    }
+
+    private MoveResult ValidateMove(IntegerPair? move)
+    {
         if (move == null)
         {
-            return InvalidMove("The move was written in an incorrect format.");
+            return new(MoveStatus.InvalidFormat);
         }
 
         if (!IsWithinGrid(move.Value))
         {
-            return InvalidMove("You are trying to place a symbol outside of the grid.");
+            return new(MoveStatus.OutOfBounds);
         }
 
         if (IsSpaceOccupied(move.Value))
         {
-            return InvalidMove("The space is already being occupied.");
+            return new(MoveStatus.OutOfBounds);
         }
 
-        return move;
-
-        IntegerPair? InvalidMove(string message)
-        {
-            DefaultWrongFormatMessage(message);
-            return null;
-        }
+        return new MoveResult(MoveStatus.Valid, move);
     }
 
     private IntegerPair? ParseMove(string input)
@@ -357,32 +372,23 @@ public class GameController
         string[]? parts = splitByComma.Length == 2 ? splitByComma :
             splitByDot.Length == 2 ? splitByDot : null;
 
-        IntegerPair pair;
-        try
+        if (parts != null) // If it isn't null, the Integer pair will have length of 2
         {
-            if (parts != null) // If it isn't null, the Integer pair will have length of 2
+            if (TryParse(parts[0], out int in1) && TryParse(parts[1], out int in2))
             {
-                int in1 = Convert.ToInt32(parts[0]) - 1;
-                int in2 = Convert.ToInt32(parts[1]) - 1;
-                pair = new IntegerPair(in1, in2);
+                return new IntegerPair(in1 - 1, in2 - 1);
             }
-            else
-            {
-                if (!TryParse(input, out int parsedNumber))
-                {
-                    return null;
-                }
 
-                GridPosition number = new GridPosition(parsedNumber - 1);
-                return (IntegerPair)number;
-            }
+            return null;
         }
-        catch
+
+        if (!TryParse(input, out int parsedNumber))
         {
             return null;
         }
 
-        return pair;
+        GridPosition number = new GridPosition(parsedNumber - 1);
+        return (IntegerPair)number;
     }
 
     private void DisplayMoveResult(IntegerPair? move, string? lastMoveResultText = null)
