@@ -11,20 +11,20 @@ public class MoveResult
     public MoveStatus Status { get; }
 
     /// <summary>
-    /// Gets the parsed move as an IntegerPair, if available.
+    /// Gets the parsed move as a <see cref="GridCoordinate"/>, if available.
     /// </summary>
     /// <remarks>
     /// This will be null for move statuses that don't represent a valid move,
     /// such as UnexpectedInput, DisplayHelp, or InvalidFormat.
     /// </remarks>
-    public IntegerPair? Move { get; }
+    public GridCoordinate? Move { get; }
 
     /// <summary>
     /// Initializes a new instance of the MoveResult class.
     /// </summary>
     /// <param name="status">The status of the attempted move.</param>
-    /// <param name="move">The parsed move as an IntegerPair, if available.</param>
-    public MoveResult(MoveStatus status, IntegerPair? move = null)
+    /// <param name="move">The parsed move as a GridCoordinate, if available.</param>
+    public MoveResult(MoveStatus status, GridCoordinate? move = null)
     {
         Status = status;
         Move = move;

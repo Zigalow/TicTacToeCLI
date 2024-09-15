@@ -212,22 +212,22 @@ public class GameController
             throw new InvalidOperationException("PerformCpuMove called with invalid game or player type.");
         }
 
-        IntegerPair movePosition = GetOptimalMove() ?? GetRandomValidMove();
+        GridCoordinate movePosition = GetOptimalMove() ?? GetRandomValidMove();
 
         ApplyCpuMove(movePosition);
         DisplayMoveResult(movePosition);
         return;
 
-        IntegerPair? GetOptimalMove()
+        GridCoordinate? GetOptimalMove()
         {
             return cpuGame.CpuCanWin(out var winningMove) ? winningMove :
                 cpuGame.CpuCanLose(out var blockingMove) ? blockingMove :
                 null;
         }
 
-        IntegerPair GetRandomValidMove()
+        GridCoordinate GetRandomValidMove()
         {
-            IntegerPair move;
+            GridCoordinate move;
             do
             {
                 move = cpu.GetRandomPosition();
@@ -236,7 +236,7 @@ public class GameController
             return move;
         }
 
-        void ApplyCpuMove(IntegerPair position)
+        void ApplyCpuMove(GridCoordinate position)
         {
             cpu.AddSymbolPosition(position);
             Console.WriteLine();
@@ -267,7 +267,7 @@ public class GameController
             }
         }
 
-        void ApplyPlayerMove(IntegerPair move)
+        void ApplyPlayerMove(GridCoordinate move)
         {
             CurrentGame.CurrentPlayer.AddSymbolPosition(move);
             CurrentGame.GameGrid[move] = CurrentGame.CurrentPlayer.Symbol;
@@ -374,11 +374,11 @@ public class GameController
             return new MoveResult(MoveStatus.DisplayControls);
         }
 
-        IntegerPair? parsedMove = ParseMoveInput(input);
+        GridCoordinate? parsedMove = ParseMoveInput(input);
         return ValidateMovePosition(parsedMove);
     }
 
-    private IntegerPair? ParseMoveInput(string input)
+    private GridCoordinate? ParseMoveInput(string input)
     {
         string[] splitByComma = input.Split(",");
         string[] splitByDot = input.Split(".");
@@ -390,7 +390,7 @@ public class GameController
         {
             if (TryParse(parts[0], out int in1) && TryParse(parts[1], out int in2))
             {
-                return new IntegerPair(in1 - 1, in2 - 1);
+                return new GridCoordinate(in1 - 1, in2 - 1);
             }
 
             return null;
@@ -402,10 +402,10 @@ public class GameController
         }
 
         GridPosition number = new GridPosition(parsedNumber - 1);
-        return (IntegerPair)number;
+        return (GridCoordinate)number;
     }
 
-    private MoveResult ValidateMovePosition(IntegerPair? move)
+    private MoveResult ValidateMovePosition(GridCoordinate? move)
     {
         if (move == null)
         {
@@ -425,7 +425,7 @@ public class GameController
         return new MoveResult(MoveStatus.Valid, move);
     }
 
-    private void DisplayMoveResult(IntegerPair move)
+    private void DisplayMoveResult(GridCoordinate move)
     {
         Console.Write(CurrentGame.GameGrid);
         LastPlacedSymbolText = PlayerPlacedSymbolMessage(CurrentGame.CurrentPlayer, move);
@@ -439,7 +439,7 @@ public class GameController
         Thread.Sleep(1000);
     }
 
-    private string PlayerPlacedSymbolMessage(Player player, IntegerPair pair)
+    private string PlayerPlacedSymbolMessage(Player player, GridCoordinate pair)
     {
         return PlayerPlacedSymbolMessage($"{player} placed a symbol on {(GridPosition)pair} / {pair}");
     }
@@ -450,12 +450,12 @@ public class GameController
         return text;
     }
 
-    private bool IsSpaceOccupied(IntegerPair pair)
+    private bool IsSpaceOccupied(GridCoordinate pair)
     {
         return !CurrentGame.GameGrid.IsSpaceAvailable(pair.First, pair.Second);
     }
 
-    private bool IsWithinGrid(IntegerPair pair)
+    private bool IsWithinGrid(GridCoordinate pair)
     {
         return !(pair.First is >= Game.GameGridSideLength or < 0 ||
                  pair.Second is >= Game.GameGridSideLength or < 0);

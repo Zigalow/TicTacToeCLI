@@ -2,7 +2,7 @@ namespace TicTacToeCLI.Model;
 
 /// <summary>
 /// This class represents a player.
-/// It contains a list of <see cref="SymbolPositions"/>, methods for retrieving the list and adding an <see cref="IntegerPair"/> to the list,
+/// It contains a list of <see cref="SymbolPositions"/>, methods for retrieving the list and adding a <see cref="GridCoordinate"/> to the list,
 /// as well as a <see cref="Name"/> and <see cref="Symbol"/> property.
 /// </summary>
 /// <remarks>This class should be inherited by the <see cref="Cpu"/> class.</remarks>
@@ -11,7 +11,7 @@ public class Player
     /// <summary>
     /// Represents the current positions of a player's placements of symbols in the game.
     /// </summary>
-    private readonly List<IntegerPair> _symbolPositions;
+    private readonly List<GridCoordinate> _symbolPositions;
 
     /// <summary>
     /// The chosen symbol of the player
@@ -36,7 +36,7 @@ public class Player
     /// <summary>
     /// Readonly list of the player's symbol positions in the game/>
     /// </summary>
-    public IReadOnlyList<IntegerPair> SymbolPositions => _symbolPositions.AsReadOnly();
+    public IReadOnlyList<GridCoordinate> SymbolPositions => _symbolPositions.AsReadOnly();
 
     /// <summary>
     /// The chosen name of the player
@@ -61,14 +61,14 @@ public class Player
     {
         Symbol = symbol;
         Name = string.IsNullOrEmpty(name) ? $"Player {GetPlayerNumber()}" : name;
-        _symbolPositions = new List<IntegerPair>();
+        _symbolPositions = new List<GridCoordinate>();
     }
 
     /// <summary>
-    /// Adds an <see cref="IntegerPair"/> to the list of <see cref="SymbolPositions"/>, representing that a symbol has been placed by a player
+    /// Adds a <see cref="GridCoordinate"/> to the list of <see cref="SymbolPositions"/>, representing that a symbol has been placed by a player
     /// </summary>
     /// <param name="pair">the integer pair being added to the <see cref="SymbolPositions"/> list</param>
-    public void AddSymbolPosition(IntegerPair pair)
+    public void AddSymbolPosition(GridCoordinate pair)
     {
         _symbolPositions.Add(pair);
     }

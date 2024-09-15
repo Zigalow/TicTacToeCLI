@@ -27,15 +27,15 @@ public class CpuGame : Game
     /// Gets a read-only list of all possible grid positions in the game.
     /// </summary>
     /// <remarks>
-    /// This list contains all valid coordinate pairs (represented as IntegerPair objects)
+    /// This list contains all valid coordinate pairs (represented as GridCoordinate objects)
     /// for the game grid. It is generated once at startup based on the GameGridSideLength
     /// and remains constant throughout the game. Players can choose their moves from these positions.
     /// </remarks>
     /// <value>
-    /// An <see cref="IReadOnlyList{T}"/> of <see cref="IntegerPair"/> objects, where each <see cref="IntegerPair"/> represents
+    /// An <see cref="IReadOnlyList{T}"/> of <see cref="GridCoordinate"/> objects, where each <see cref="GridCoordinate"/> represents
     /// a valid (row, column) coordinate on the game grid.
     /// </value>
-    public static IReadOnlyList<IntegerPair> AllGridPositions { get; } =
+    public static IReadOnlyList<GridCoordinate> AllGridPositions { get; } =
         GenerateAllGridPositions(GameGridSideLength);
 
     private Cpu Cpu { get; }
@@ -43,12 +43,12 @@ public class CpuGame : Game
     /// <summary>
     /// Determines if the CPU player can win in the next move.
     /// </summary>
-    /// <param name="winningPair">When this method returns, contains the <see cref="IntegerPair"/> representing 
+    /// <param name="winningPair">When this method returns, contains the <see cref="GridCoordinate"/> representing 
     /// the position where the CPU should place its symbol to win, if a winning move is possible; otherwise, null.</param>
     /// <returns>
     /// <c>true</c> if the CPU can win with its next move; otherwise, <c>false</c>.
     /// </returns>
-    public bool CpuCanWin(out IntegerPair? winningPair)
+    public bool CpuCanWin(out GridCoordinate? winningPair)
     {
         WinPossibility winPossibility = new(Cpu.SymbolPositions, GameGridSideLength);
         return CalculateWinPossibility(winPossibility, out winningPair);
@@ -57,27 +57,27 @@ public class CpuGame : Game
     /// <summary>
     /// Determines if the human player can win in their next move, which would result in the CPU losing.
     /// </summary>
-    /// <param name="pairToPreventLoss">When this method returns, contains the <see cref="IntegerPair"/> representing 
+    /// <param name="pairToPreventLoss">When this method returns, contains the <see cref="GridCoordinate"/> representing 
     /// the position where the CPU should place its symbol to prevent losing, if the human player has a winning move; 
     /// otherwise, null.</param>
     /// <returns>
     /// <c>true</c> if the human player can win (and thus the CPU can lose) in the next move; otherwise, <c>false</c>.
     /// </returns>
-    public bool CpuCanLose(out IntegerPair? pairToPreventLoss)
+    public bool CpuCanLose(out GridCoordinate? pairToPreventLoss)
     {
         WinPossibility winPossibility = new(Players[0].SymbolPositions, GameGridSideLength);
         return CalculateWinPossibility(winPossibility, out pairToPreventLoss);
     }
 
-    private static ReadOnlyCollection<IntegerPair> GenerateAllGridPositions(int gridSideLength)
+    private static ReadOnlyCollection<GridCoordinate> GenerateAllGridPositions(int gridSideLength)
     {
-        var tempArr = new List<IntegerPair>(gridSideLength * gridSideLength);
+        var tempArr = new List<GridCoordinate>(gridSideLength * gridSideLength);
 
         for (int i = 0; i < gridSideLength; i++)
         {
             for (int j = 0; j < gridSideLength; j++)
             {
-                tempArr.Add(new IntegerPair(i, j));
+                tempArr.Add(new GridCoordinate(i, j));
             }
         }
 
@@ -88,7 +88,7 @@ public class CpuGame : Game
     /// Calculates whether it's possible for the player to win based on the given <see cref="WinPossibility"/>.
     /// </summary>
     /// <param name="winPossibility">The <see cref="WinPossibility"/> of the player to calculate win potential for.</param>
-    /// <param name="pair">When this method returns, contains the <see cref="IntegerPair"/> representing the position 
+    /// <param name="pair">When this method returns, contains the <see cref="GridCoordinate"/> representing the position 
     /// where the player should place their symbol to win, if a winning move is possible; otherwise, null.</param>
     /// <returns>
     /// <c>true</c> if it's possible for the player to win with their next move; otherwise, <c>false</c>.
@@ -102,7 +102,7 @@ public class CpuGame : Game
     ///    - Right-to-left diagonal
     /// The method stops and returns true as soon as it finds a winning move.
     /// </remarks>
-    private bool CalculateWinPossibility(WinPossibility winPossibility, out IntegerPair? pair)
+    private bool CalculateWinPossibility(WinPossibility winPossibility, out GridCoordinate? pair)
     {
         // Sideways
         foreach (var side in winPossibility.Sides)
@@ -114,7 +114,7 @@ public class CpuGame : Game
                     continue;
                 }
 
-                pair = new IntegerPair(i, side);
+                pair = new GridCoordinate(i, side);
                 return true;
             }
         }
@@ -126,7 +126,7 @@ public class CpuGame : Game
             {
                 if (GameGrid[vert, i] == null)
                 {
-                    pair = new IntegerPair(vert, i);
+                    pair = new GridCoordinate(vert, i);
                     return true;
                 }
             }
@@ -152,7 +152,7 @@ public class CpuGame : Game
                         continue;
                     }
 
-                    pair = new IntegerPair(j, j);
+                    pair = new GridCoordinate(j, j);
                     return true;
                 }
             }
@@ -165,7 +165,7 @@ public class CpuGame : Game
                         continue;
                     }
 
-                    pair = new IntegerPair(GameGridSideLength - j - 1, j);
+                    pair = new GridCoordinate(GameGridSideLength - j - 1, j);
                     return true;
                 }
             }

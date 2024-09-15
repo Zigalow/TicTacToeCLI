@@ -12,27 +12,27 @@ public readonly struct GridPosition
     /// <summary>
     /// Represents the position of top-left corner of the game grid.
     /// </summary>
-    internal static readonly IntegerPair TopLeft = new(0, 0);
+    internal static readonly GridCoordinate TopLeft = new(0, 0);
 
     /// <summary>
     /// Represents the position of top-right corner of the game grid.
     /// </summary>
-    internal static readonly IntegerPair TopRight = new(Game.GameGridSideLength - 1, 0);
+    internal static readonly GridCoordinate TopRight = new(Game.GameGridSideLength - 1, 0);
 
     /// <summary>
     /// Represents the position of the middle cell of the game grid.
     /// </summary>
-    internal static readonly IntegerPair Middle = new(Game.GameGridSideLength / 2, Game.GameGridSideLength / 2);
+    internal static readonly GridCoordinate Middle = new(Game.GameGridSideLength / 2, Game.GameGridSideLength / 2);
 
     /// <summary>
     /// Represents the position of the bottom-left corner of the game grid.
     /// </summary>
-    internal static readonly IntegerPair BottomLeft = new(0, Game.GameGridSideLength - 1);
+    internal static readonly GridCoordinate BottomLeft = new(0, Game.GameGridSideLength - 1);
 
     /// <summary>
     /// Represents the position of the bottom-right corner of the game grid.
     /// </summary>
-    internal static readonly IntegerPair BottomRight = new(Game.GameGridSideLength - 1, Game.GameGridSideLength - 1);
+    internal static readonly GridCoordinate BottomRight = new(Game.GameGridSideLength - 1, Game.GameGridSideLength - 1);
 
     private const int GridSize = Game.GameGridSideLength;
 
@@ -57,33 +57,33 @@ public readonly struct GridPosition
     }
 
     /// <summary>
-    /// Explicitly converts a <see cref="GridPosition"/> to an <see cref="IntegerPair"/>.
+    /// Explicitly converts a <see cref="GridPosition"/> to a <see cref="GridCoordinate"/>.
     /// </summary>
     /// <param name="gridPosition">The <see cref="GridPosition"/> to convert.</param>
-    /// <returns>An <see cref="IntegerPair"/> representing the grid coordinates (column, row), (0-based index).</returns>
+    /// <returns>A <see cref="GridCoordinate"/> representing the grid coordinates (column, row), (0-based index).</returns>
     /// <remarks>
     /// The conversion is done using the formula:<br/>
     /// column = number % GridSize <br/>
     /// row = number / GridSize<br/>
     /// </remarks>
-    public static explicit operator IntegerPair(GridPosition gridPosition)
+    public static explicit operator GridCoordinate(GridPosition gridPosition)
     {
         int columnNumber = gridPosition.LinearIndex % GridSize;
         int rowNumber = gridPosition.LinearIndex / GridSize;
 
-        return new IntegerPair(columnNumber, rowNumber);
+        return new GridCoordinate(columnNumber, rowNumber);
     }
 
     /// <summary>
-    /// Implicitly converts an <see cref="IntegerPair"/> to a <see cref="GridPosition"/>.
+    /// Implicitly converts a <see cref="GridCoordinate"/> to a <see cref="GridPosition"/>.
     /// </summary>
-    /// <param name="pair">The <see cref="IntegerPair"/> to convert.</param>
+    /// <param name="pair">The <see cref="GridCoordinate"/> to convert.</param>
     /// <returns>A <see cref="GridPosition"/> representing the position as a single number (0-based index).</returns>
     /// <remarks>
     /// The conversion is done using the formula:<br/>
     /// number = column + (row * GridSize)<br/>
     /// </remarks>
-    public static implicit operator GridPosition(IntegerPair pair)
+    public static implicit operator GridPosition(GridCoordinate pair)
     {
         int column = pair.First;
         int rowTimesGridSize = pair.Second * GridSize;

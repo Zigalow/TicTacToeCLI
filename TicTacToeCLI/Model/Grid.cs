@@ -40,11 +40,11 @@ public class Grid : IEnumerable
     }
 
     /// <summary>
-    /// Gets or sets the value at the specified position represented by an <see cref="IntegerPair"/>.
+    /// Gets or sets the value at the specified position represented by a <see cref="GridCoordinate"/>.
     /// </summary>
-    /// <param name="pair">The position represented by an <see cref="IntegerPair"/>.</param>
+    /// <param name="pair">The position represented by a <see cref="GridCoordinate"/>.</param>
     /// <returns>The value at the specified position.</returns>
-    public char? this[IntegerPair pair]
+    public char? this[GridCoordinate pair]
     {
         get => _gridFormat[pair.First, pair.Second];
         set => _gridFormat[pair.First, pair.Second] = value;
@@ -62,11 +62,11 @@ public class Grid : IEnumerable
     }
 
     /// <summary>
-    /// Determines whether the specified position represented by an <see cref="IntegerPair"/> is available.
+    /// Determines whether the specified position represented by a <see cref="GridCoordinate"/> is available.
     /// </summary>
-    /// <param name="pair">The position represented by an <see cref="IntegerPair"/>.</param>
+    /// <param name="pair">The position represented by a <see cref="GridCoordinate"/>.</param>
     /// <returns><c>true</c> if the position is available; otherwise, <c>false</c>.</returns>
-    public bool IsSpaceAvailable(IntegerPair pair)
+    public bool IsSpaceAvailable(GridCoordinate pair)
     {
         return this[pair] != null;
     }
