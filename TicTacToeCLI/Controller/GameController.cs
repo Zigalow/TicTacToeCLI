@@ -9,6 +9,9 @@ using static System.Int32;
 // Todo - Setup configurations in github, so people can't accept their own pull request
 namespace TicTacToeCLI.Controller;
 
+/// <summary>
+/// Controls the flow and logic of the Tic-Tac-Toe game.
+/// </summary>
 public class GameController
 {
     private const int CharPrintDelayMicroseconds = 15000;
@@ -16,6 +19,13 @@ public class GameController
     private Game CurrentGame { get; set; } = null!;
     private string LastPlacedSymbolText { get; set; } = "";
 
+    /// <summary>
+    /// Initiates a new game session, including game setup and execution.
+    /// </summary>
+    /// <remarks>
+    /// This method controls the main game loop, allowing players to start new games
+    /// or continue with the same configuration until they choose to exit.
+    /// </remarks>
     public void InitiateGameSession()
     {
         DisplayWelcomeMessage();
@@ -46,6 +56,13 @@ public class GameController
         Thread.Sleep(1000);
     }
 
+    /// <summary>
+    /// Configures the game settings based on user input.
+    /// </summary>
+    /// <remarks>
+    /// This method handles the selection of game mode (Player vs Player or Player vs CPU)
+    /// and allows players to choose custom shapes or use default ones.
+    /// </remarks>
     private void ConfigureGameSettings()
     {
         GameModeOption chosenGameModeOption = SelectGameMode();
@@ -171,6 +188,13 @@ public class GameController
         Thread.Sleep(2000);
     }
 
+    /// <summary>
+    /// Executes the main game loop, handling turns and checking for win/draw conditions.
+    /// </summary>
+    /// <remarks>
+    /// This method continues to execute turns until a player wins or the game ends in a draw.
+    /// It also handles the transition between players and updates the game state.
+    /// </remarks>
     private void ExecuteGameRounds()
     {
         while (true)
@@ -193,6 +217,9 @@ public class GameController
         }
     }
 
+    /// <summary>
+    /// Executes a single turn for the current player.
+    /// </summary>
     private void ExecuteCurrentTurn()
     {
         if (CurrentGame.CurrentPlayer is Cpu)
@@ -360,6 +387,14 @@ public class GameController
         SlowPrint($"{CurrentGame.CurrentPlayer} has the current turn (Type h to display controls):\n");
     }
 
+    /// <summary>
+    /// Processes and validates the player's move input.
+    /// </summary>
+    /// <returns>A MoveResult containing the status and parsed move.</returns>
+    /// <remarks>
+    /// This method handles various input scenarios, including displaying controls,
+    /// parsing valid moves, and identifying invalid inputs.
+    /// </remarks>
     private MoveResult ProcessPlayerMoveInput()
     {
         string? input = ReadInput();
@@ -378,6 +413,11 @@ public class GameController
         return ValidateMovePosition(parsedMove);
     }
 
+    /// <summary>
+    /// Parses the user's input into a grid coordinate.
+    /// </summary>
+    /// <param name="input">The user's input string.</param>
+    /// <returns>A GridCoordinate if parsing is successful; otherwise, null.</returns>
     private GridCoordinate? ParseMoveInput(string input)
     {
         string[] splitByComma = input.Split(",");
@@ -405,6 +445,11 @@ public class GameController
         return (GridCoordinate)number;
     }
 
+    /// <summary>
+    /// Validates whether a move is written in the correct format, within the grid and on an unoccupied space.
+    /// </summary>
+    /// <param name="move">The move to validate.</param>
+    /// <returns>A MoveResult indicating the validity of the move.</returns>
     private MoveResult ValidateMovePosition(GridCoordinate? move)
     {
         if (move == null)
@@ -545,6 +590,17 @@ public class GameController
         }
     }
 
+    /// <summary>
+    /// Displays text gradually with a delay between each character.
+    /// </summary>
+    /// <param name="text">The text to display.</param>
+    /// <param name="charPrintDelayMicroseconds">Delay between each character in microseconds.</param>
+    /// <param name="postPrintDelayMicroseconds">Delay after printing the entire text in microseconds.</param>
+    /// <param name="skipPostPrintDelay">If true, skips the post-print delay.</param>
+    /// <remarks>
+    /// This method creates a typewriter-like effect for text output, enhancing the user experience.
+    /// It allows customization of delays between characters and after the entire text is printed.
+    /// </remarks>
     private void SlowPrint(string text, int charPrintDelayMicroseconds = CharPrintDelayMicroseconds,
         int postPrintDelayMicroseconds = PostPrintDelayMicroseconds, bool skipPostPrintDelay = false)
     {
@@ -564,7 +620,7 @@ public class GameController
 
     private string? ReadInput()
     {
-        while (Console.KeyAvailable) // Clear the input buffer
+        while (Console.KeyAvailable)
         {
             Console.ReadKey(true);
         }
@@ -574,7 +630,7 @@ public class GameController
 
     private ConsoleKey ReadInputKey()
     {
-        while (Console.KeyAvailable) // Clear the input buffer
+        while (Console.KeyAvailable)
         {
             Console.ReadKey(true);
         }
@@ -584,7 +640,7 @@ public class GameController
 
     private ConsoleKeyInfo ReadInputKeyInfo()
     {
-        while (Console.KeyAvailable) // Clear the input buffer
+        while (Console.KeyAvailable)
         {
             Console.ReadKey(true);
         }
