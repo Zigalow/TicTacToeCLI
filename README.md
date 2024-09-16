@@ -2,6 +2,37 @@
 
 This is a command-line interface (CLI) implementation of the classic Tic-Tac-Toe game, written in C#. The game offers both player-vs-player and player-vs-CPU modes, with customizable player symbols.
 
+## Installation
+
+1. Go to the [Releases](https://github.com/yourusername/TicTacToeCLI/releases) page of this repository.
+2. Download the latest release for your operating system (Windows, macOS, or Linux).
+3. Extract the downloaded file to a directory of your choice.
+
+## Running the Game
+
+### Windows
+
+1. Navigate to the directory where you extracted the game files.
+2. Double-click on `TicTacToeCLI.exe` to start the game.
+
+### MacOS and Linux
+
+1. Open a terminal.
+
+2. Navigate to the directory where you extracted the game files.
+
+3. Run the following command:
+
+   ```
+   ./TicTacToeCLI
+   ```
+
+If you encounter a permission error on macOS or Linux, you may need to make the file executable:
+
+```
+chmod +x TicTacToeCLI
+```
+
 ## Features
 
 - Two game modes:
