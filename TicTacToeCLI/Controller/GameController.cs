@@ -459,7 +459,7 @@ public class GameController
 
         if (IsSpaceOccupied(move.Value))
         {
-            return new(MoveStatus.OutOfBounds);
+            return new(MoveStatus.SpaceOccupied);
         }
 
         return new MoveResult(MoveStatus.Valid, move);
