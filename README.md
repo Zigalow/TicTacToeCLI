@@ -4,7 +4,7 @@ This is a command-line interface (CLI) implementation of the classic Tic-Tac-Toe
 
 ## Installation
 
-1. Go to the [Releases](https://github.com/yourusername/TicTacToeCLI/releases) page of this repository.
+1. Go to the [Releases](https://github.com/Zigalow/TicTacToeCLI/releases) page of this repository.
 2. Download the latest release for your operating system (Windows, macOS, or Linux).
 3. Extract the downloaded file to a directory of your choice.
 
